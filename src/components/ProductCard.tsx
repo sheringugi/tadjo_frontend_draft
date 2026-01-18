@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingCart, Star, Eye, Heart } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Product, addToCart } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,126 +20,69 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
     e.stopPropagation();
     addToCart(product);
     toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
+      title: "Added to bag",
+      description: `${product.name} has been added to your bag.`,
     });
   };
-
-  const discount = product.originalPrice
-    ? Math.round((1 - product.price / product.originalPrice) * 100)
-    : 0;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.1 }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
     >
       <Link to={`/product/${product.id}`}>
         <div
-          className="group relative bg-card rounded-xl overflow-hidden shadow-card hover:shadow-card-hover transition-all duration-300"
+          className="group"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
           {/* Image Container */}
-          <div className="relative aspect-square overflow-hidden bg-secondary">
+          <div className="relative aspect-[3/4] overflow-hidden bg-secondary mb-4">
             <img
               src={product.image}
               alt={product.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             
-            {/* Badges */}
-            <div className="absolute top-3 left-3 flex flex-col gap-2">
-              {product.badge && (
-                <Badge
-                  variant={product.badge === 'sale' ? 'destructive' : 'default'}
-                  className={`text-xs font-semibold ${
-                    product.badge === 'bestseller' ? 'bg-primary' : 
-                    product.badge === 'new' ? 'bg-success' : ''
-                  }`}
-                >
-                  {product.badge === 'bestseller' ? '🔥 Best Seller' : 
-                   product.badge === 'new' ? '✨ New' : 
-                   `${discount}% OFF`}
-                </Badge>
-              )}
-            </div>
+            {/* Badge */}
+            {product.badge && (
+              <div className="absolute top-4 left-4">
+                <span className="text-[10px] tracking-luxury uppercase bg-background/95 backdrop-blur-sm px-3 py-1.5 text-foreground">
+                  {product.badge === 'bestseller' ? 'Best Seller' : 
+                   product.badge === 'new' ? 'New' : 
+                   product.badge === 'limited' ? 'Limited' : ''}
+                </span>
+              </div>
+            )}
 
-            {/* Quick Actions */}
+            {/* Quick Add Button */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: isHovered ? 1 : 0 }}
-              className="absolute top-3 right-3 flex flex-col gap-2"
-            >
-              <Button
-                size="icon"
-                variant="secondary"
-                className="w-8 h-8 rounded-full shadow-md"
-                onClick={(e) => e.preventDefault()}
-              >
-                <Heart className="w-4 h-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="secondary"
-                className="w-8 h-8 rounded-full shadow-md"
-                onClick={(e) => e.preventDefault()}
-              >
-                <Eye className="w-4 h-4" />
-              </Button>
-            </motion.div>
-
-            {/* Add to Cart Button */}
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: isHovered ? 0 : '100%' }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="absolute bottom-0 left-0 right-0 p-3"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 10 }}
+              transition={{ duration: 0.2 }}
+              className="absolute bottom-4 right-4"
             >
               <Button
                 onClick={handleAddToCart}
-                className="w-full gradient-cta text-accent-foreground font-semibold shadow-lg"
+                size="icon"
+                className="w-10 h-10 rounded-full bg-background text-foreground hover:bg-foreground hover:text-background shadow-lg"
               >
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                Add to Cart
+                <Plus className="w-4 h-4" />
               </Button>
             </motion.div>
           </div>
 
           {/* Content */}
-          <div className="p-4">
-            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-              {product.category}
+          <div className="space-y-1">
+            <p className="text-[11px] tracking-wide uppercase text-muted-foreground">
+              {product.material}
             </p>
-            <h3 className="font-semibold text-foreground line-clamp-2 min-h-[2.5rem] group-hover:text-primary transition-colors">
+            <h3 className="text-base font-display text-foreground group-hover:text-muted-foreground transition-colors">
               {product.name}
             </h3>
-            
-            {/* Rating */}
-            <div className="flex items-center gap-1 mt-2">
-              <Star className="w-4 h-4 fill-warning text-warning" />
-              <span className="text-sm font-medium">{product.rating}</span>
-              <span className="text-xs text-muted-foreground">
-                ({product.reviews.toLocaleString()} reviews)
-              </span>
-            </div>
-
-            {/* Price */}
-            <div className="flex items-center gap-2 mt-3">
-              <span className="text-lg font-bold text-foreground">
-                ${product.price.toFixed(2)}
-              </span>
-              {product.originalPrice && (
-                <span className="text-sm text-muted-foreground line-through">
-                  ${product.originalPrice.toFixed(2)}
-                </span>
-              )}
-            </div>
-
-            {/* Shipping */}
-            <p className="text-xs text-success font-medium mt-2">
-              🚚 Free shipping • {product.shippingDays}-day delivery
+            <p className="text-sm text-foreground">
+              CHF {product.price.toFixed(0)}
             </p>
           </div>
         </div>

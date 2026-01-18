@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Search, Menu, X, User, Package } from 'lucide-react';
+import { ShoppingBag, Menu, X, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { getCartCount } from '@/lib/store';
 
 const Header = () => {
@@ -14,7 +13,7 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -25,35 +24,46 @@ const Header = () => {
   }, [location]);
 
   const navLinks = [
-    { to: '/', label: 'Home' },
     { to: '/products', label: 'Shop' },
-    { to: '/admin', label: 'Dashboard' },
+    { to: '/products?category=collars', label: 'Collars' },
+    { to: '/products?category=leashes', label: 'Leashes' },
+    { to: '/products?category=beds', label: 'Beds' },
+    { to: '/admin', label: 'Our Story' },
   ];
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-background/95 backdrop-blur-md shadow-md' : 'bg-background'
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        isScrolled ? 'bg-background/98 backdrop-blur-sm border-b border-border' : 'bg-transparent'
       }`}
     >
       <div className="container mx-auto">
-        <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg gradient-hero flex items-center justify-center">
-              <Package className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold text-foreground">DropShip</span>
-          </Link>
+        {/* Top bar - subtle announcement */}
+        <div className="hidden md:flex items-center justify-center py-2 border-b border-border/50">
+          <p className="text-xs tracking-luxury text-muted-foreground uppercase">
+            Complimentary shipping on orders over CHF 150
+          </p>
+        </div>
 
-          {/* Desktop Navigation */}
+        <div className="flex items-center justify-between h-16 md:h-20">
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </Button>
+
+          {/* Desktop Navigation - Left */}
           <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
+            {navLinks.slice(0, 3).map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  location.pathname === link.to ? 'text-primary' : 'text-muted-foreground'
+                className={`text-xs tracking-luxury uppercase font-medium transition-colors hover:text-foreground ${
+                  location.pathname === link.to ? 'text-foreground' : 'text-muted-foreground'
                 }`}
               >
                 {link.label}
@@ -61,47 +71,48 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* Search Bar - Desktop */}
-          <div className="hidden lg:flex items-center flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search products..."
-                className="pl-10 bg-secondary border-0 focus-visible:ring-1 focus-visible:ring-primary"
-              />
-            </div>
-          </div>
+          {/* Logo - Center */}
+          <Link to="/" className="absolute left-1/2 -translate-x-1/2">
+            <h1 className="text-2xl md:text-3xl font-display font-medium tracking-wide text-foreground">
+              TAJDO
+            </h1>
+          </Link>
+
+          {/* Desktop Navigation - Right */}
+          <nav className="hidden md:flex items-center gap-8">
+            {navLinks.slice(3).map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`text-xs tracking-luxury uppercase font-medium transition-colors hover:text-foreground ${
+                  location.pathname === link.to ? 'text-foreground' : 'text-muted-foreground'
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" className="hidden md:flex">
-              <User className="w-5 h-5" />
+              <User className="w-4 h-4" />
             </Button>
             
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart className="w-5 h-5" />
+                <ShoppingBag className="w-4 h-4" />
                 {cartCount > 0 && (
                   <motion.span
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-accent text-accent-foreground text-xs font-bold flex items-center justify-center"
+                    className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-foreground text-background text-[10px] font-medium flex items-center justify-center"
                   >
                     {cartCount}
                   </motion.span>
                 )}
               </Button>
             </Link>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
           </div>
         </div>
 
@@ -112,34 +123,24 @@ const Header = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-border"
+              className="md:hidden border-t border-border bg-background"
             >
-              <div className="py-4 space-y-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    type="search"
-                    placeholder="Search products..."
-                    className="pl-10 bg-secondary border-0"
-                  />
-                </div>
-                <nav className="flex flex-col gap-2">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.to}
-                      to={link.to}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        location.pathname === link.to
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-foreground hover:bg-secondary'
-                      }`}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </nav>
-              </div>
+              <nav className="flex flex-col py-6">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`px-6 py-3 text-sm tracking-luxury uppercase font-medium transition-colors ${
+                      location.pathname === link.to
+                        ? 'text-foreground'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
             </motion.div>
           )}
         </AnimatePresence>
