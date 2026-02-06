@@ -8,6 +8,7 @@ import ProductCard from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { products, addToCart } from '@/lib/store';
+import { getSupplierForProduct } from '@/lib/suppliers';
 import { useToast } from '@/hooks/use-toast';
 
 const ProductDetail = () => {
@@ -16,6 +17,7 @@ const ProductDetail = () => {
   const { toast } = useToast();
 
   const product = products.find(p => p.id === id);
+  const supplier = product ? getSupplierForProduct(product.id) : undefined;
   const relatedProducts = products.filter(p => p.id !== id && p.category === product?.category).slice(0, 4);
 
   if (!product) {
@@ -164,10 +166,16 @@ const ProductDetail = () => {
               </div>
 
               {/* Shipping Note */}
-              <div className="border-t border-border pt-6">
+              <div className="border-t border-border pt-6 space-y-2">
                 <p className="text-sm text-muted-foreground">
                   Complimentary shipping on orders over CHF 150. Estimated delivery: {product.shippingDays} business days.
                 </p>
+                {supplier && (
+                  <p className="text-xs text-muted-foreground">
+                    Sourced from: <span className="text-foreground">{supplier.type === 'alibaba' ? 'Partner manufacturer' : 'Tanzanian artisan collective'}</span>
+                    {' '}• ~{supplier.defaultLeadTimeDays} day lead time
+                  </p>
+                )}
               </div>
 
               {/* Tabs */}

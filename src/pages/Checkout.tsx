@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { getCart, getCartTotal, clearCart, CartItem } from '@/lib/store';
+import { createSupplierOrdersFromCustomerOrder } from '@/lib/suppliers';
 import { useToast } from '@/hooks/use-toast';
 
 const Checkout = () => {
@@ -37,10 +38,19 @@ const Checkout = () => {
     // Simulate payment processing
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
+    // Generate a customer order ID and auto-create supplier orders
+    const customerOrderId = `ORD-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    const orderItems = cartItems.map(item => ({
+      productId: item.product.id,
+      productName: item.product.name,
+      quantity: item.quantity,
+    }));
+    createSupplierOrdersFromCustomerOrder(customerOrderId, orderItems);
+
     clearCart();
     toast({
       title: "Order confirmed",
-      description: "You'll receive a confirmation email shortly.",
+      description: "Supplier orders have been auto-generated.",
     });
     navigate('/order-confirmation');
   };

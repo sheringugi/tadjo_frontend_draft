@@ -11,13 +11,16 @@ import {
   BarChart3,
   Settings,
   Bell,
+  ArrowRight,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { products } from '@/lib/store';
+import { suppliers, getSupplierOrders } from '@/lib/suppliers';
 
 const stats = [
   {
@@ -97,10 +100,13 @@ const Admin = () => {
               <Button variant="outline" size="icon">
                 <Settings className="w-4 h-4" />
               </Button>
-              <Button className="gradient-cta text-accent-foreground">
-                <Package className="w-4 h-4 mr-2" />
-                Import Products
-              </Button>
+              <Link to="/admin/suppliers">
+                <Button className="gradient-cta text-accent-foreground">
+                  <Package className="w-4 h-4 mr-2" />
+                  Supplier Orders
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
             </div>
           </motion.div>
 
