@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus } from 'lucide-react';
+import { Plus, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Product, addToCart } from '@/lib/store';
+import { isInWishlist, toggleWishlist } from '@/lib/wishlist';
 import { useToast } from '@/hooks/use-toast';
 
 interface ProductCardProps {
@@ -13,6 +14,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [wishlisted, setWishlisted] = useState(isInWishlist(product.id));
   const { toast } = useToast();
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -55,6 +57,20 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
                 </span>
               </div>
             )}
+
+            {/* Wishlist Button */}
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const added = toggleWishlist(product.id);
+                setWishlisted(added);
+                toast({ title: added ? 'Added to wishlist' : 'Removed from wishlist' });
+              }}
+              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-full hover:bg-background transition-colors"
+            >
+              <Heart className={`w-4 h-4 ${wishlisted ? 'fill-foreground text-foreground' : 'text-foreground'}`} />
+            </button>
 
             {/* Quick Add Button */}
             <motion.div
