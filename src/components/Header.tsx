@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Menu, X, User } from 'lucide-react';
+import { ShoppingBag, Menu, X, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getCartCount } from '@/lib/store';
+import { getWishlistCount } from '@/lib/wishlist';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -27,8 +28,8 @@ const Header = () => {
     { to: '/products', label: 'Shop' },
     { to: '/products?category=collars', label: 'Collars' },
     { to: '/products?category=leashes', label: 'Leashes' },
-    { to: '/products?category=beds', label: 'Beds' },
-    { to: '/admin', label: 'Our Story' },
+    { to: '/about', label: 'Our Story' },
+    { to: '/contact', label: 'Contact' },
   ];
 
   return (
@@ -95,9 +96,16 @@ const Header = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="hidden md:flex">
-              <User className="w-4 h-4" />
-            </Button>
+            <Link to="/wishlist">
+              <Button variant="ghost" size="icon" className="relative">
+                <Heart className="w-4 h-4" />
+                {getWishlistCount() > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-foreground text-background text-[10px] font-medium flex items-center justify-center">
+                    {getWishlistCount()}
+                  </span>
+                )}
+              </Button>
+            </Link>
             
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative">

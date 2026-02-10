@@ -58,13 +58,9 @@ const Footer = () => {
           <div>
             <h4 className="text-xs tracking-luxury uppercase mb-6">About</h4>
             <ul className="space-y-3">
-              {['Our Story', 'Craftsmanship', 'Sustainability', 'Press'].map((item) => (
-                <li key={item}>
-                  <Link to="/" className="text-sm text-background/60 hover:text-background transition-colors">
-                    {item}
-                  </Link>
-                </li>
-              ))}
+              <li><Link to="/about" className="text-sm text-background/60 hover:text-background transition-colors">Our Story</Link></li>
+              <li><a href="https://tajdo.ch" target="_blank" rel="noopener noreferrer" className="text-sm text-background/60 hover:text-background transition-colors">TAJDO Rescue</a></li>
+              <li><Link to="/contact" className="text-sm text-background/60 hover:text-background transition-colors">Contact Us</Link></li>
             </ul>
           </div>
 
@@ -72,17 +68,13 @@ const Footer = () => {
           <div>
             <h4 className="text-xs tracking-luxury uppercase mb-6">Help</h4>
             <ul className="space-y-3">
-              {['Shipping & Returns', 'Care Guide', 'Size Guide', 'Contact'].map((item) => (
-                <li key={item}>
-                  <Link to="/" className="text-sm text-background/60 hover:text-background transition-colors">
-                    {item}
-                  </Link>
-                </li>
-              ))}
+              <li><Link to="/returns" className="text-sm text-background/60 hover:text-background transition-colors">Returns & Exchanges</Link></li>
+              <li><Link to="/contact" className="text-sm text-background/60 hover:text-background transition-colors">Contact</Link></li>
+              <li><Link to="/wishlist" className="text-sm text-background/60 hover:text-background transition-colors">Wishlist</Link></li>
             </ul>
             <div className="flex items-center gap-2 mt-6 text-sm text-background/60">
               <Mail className="w-4 h-4" />
-              hello@tajdo.com
+              hello@tajdo.ch
             </div>
           </div>
         </div>

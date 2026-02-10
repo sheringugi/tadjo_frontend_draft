@@ -1,9 +1,12 @@
+import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Hero from '@/components/Hero';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import Categories from '@/components/Categories';
 import TrustBadges from '@/components/TrustBadges';
+import ProductCard from '@/components/ProductCard';
+import { products } from '@/lib/store';
 import { motion } from 'framer-motion';
 
 const Index = () => {
@@ -14,6 +17,27 @@ const Index = () => {
         <Hero />
         <TrustBadges />
         <FeaturedProducts />
+
+        {/* Best Sellers */}
+        <section className="py-24 md:py-32 bg-secondary/30">
+          <div className="container mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-12"
+            >
+              <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">Most Loved</p>
+              <h2 className="text-3xl md:text-4xl font-display text-foreground">Best Sellers</h2>
+            </motion.div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+              {products.filter(p => p.badge === 'bestseller' || p.reviews > 100).slice(0, 4).map((product, i) => (
+                <ProductCard key={product.id} product={product} index={i} />
+              ))}
+            </div>
+          </div>
+        </section>
+
         <Categories />
         
         {/* Brand Story Section */}
