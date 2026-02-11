@@ -80,10 +80,24 @@ const ERDDiagram = () => {
     render();
   }, []);
 
-  const downloadSVG = () => {
+  const getSvgString = () => {
     const svg = containerRef.current?.querySelector("svg");
-    if (!svg) return;
-    const blob = new Blob([svg.outerHTML], { type: "image/svg+xml" });
+    if (!svg) return null;
+    const clone = svg.cloneNode(true) as SVGSVGElement;
+    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+    // Inline all computed styles so it renders standalone
+    const styles = document.querySelectorAll("style");
+    const styleEl = document.createElementNS("http://www.w3.org/2000/svg", "style");
+    styles.forEach(s => { styleEl.textContent += s.textContent; });
+    clone.insertBefore(styleEl, clone.firstChild);
+    return { clone, width: svg.getBoundingClientRect().width, height: svg.getBoundingClientRect().height };
+  };
+
+  const downloadSVG = () => {
+    const result = getSvgString();
+    if (!result) return;
+    const blob = new Blob([result.clone.outerHTML], { type: "image/svg+xml;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -92,29 +106,29 @@ const ERDDiagram = () => {
     URL.revokeObjectURL(url);
   };
 
-  const downloadPNG = async () => {
-    const svg = containerRef.current?.querySelector("svg");
-    if (!svg) return;
-    const canvas = document.createElement("canvas");
-    const bbox = svg.getBoundingClientRect();
+  const downloadPNG = () => {
+    const result = getSvgString();
+    if (!result) return;
     const scale = 2;
-    canvas.width = bbox.width * scale;
-    canvas.height = bbox.height * scale;
+    const canvas = document.createElement("canvas");
+    canvas.width = result.width * scale;
+    canvas.height = result.height * scale;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.scale(scale, scale);
+    const svgData = new XMLSerializer().serializeToString(result.clone);
+    const dataUrl = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgData);
     const img = new Image();
-    const svgBlob = new Blob([svg.outerHTML], { type: "image/svg+xml" });
-    const url = URL.createObjectURL(svgBlob);
     img.onload = () => {
-      ctx.drawImage(img, 0, 0);
-      URL.revokeObjectURL(url);
+      ctx.fillStyle = "#1a1a2e";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, result.width, result.height);
       const a = document.createElement("a");
       a.href = canvas.toDataURL("image/png");
       a.download = "tajdo-erd.png";
       a.click();
     };
-    img.src = url;
+    img.src = dataUrl;
   };
 
   return (
