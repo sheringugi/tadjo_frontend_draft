@@ -16,6 +16,7 @@ import AboutUs from "./pages/AboutUs";
 import Wishlist from "./pages/Wishlist";
 import Contact from "./pages/Contact";
 import Returns from "./pages/Returns";
+import ERDDiagram from "./pages/ERDDiagram";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/analytics" element={<AdminAnalytics />} />
           <Route path="/admin/suppliers" element={<SupplierManagement />} />
+          <Route path="/erd" element={<ERDDiagram />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
