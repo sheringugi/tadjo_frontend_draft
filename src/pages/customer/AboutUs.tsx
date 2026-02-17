@@ -1,17 +1,13 @@
 import { motion } from 'framer-motion';
 import { Heart, ExternalLink, Leaf, Globe, HandHeart } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 
 const AboutUs = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="pt-28 md:pt-36">
-        {/* Hero */}
-        <section className="pb-24">
-          <div className="container mx-auto max-w-5xl">
+    <>
+      {/* Hero */}
+      <section className="pt-20 md:pt-24 pb-24">
+          <div className="container mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -47,7 +43,7 @@ const AboutUs = () => {
 
         {/* Mission */}
         <section className="py-24 bg-secondary/30">
-          <div className="container mx-auto max-w-5xl">
+          <div className="container mx-auto">
             <div className="grid md:grid-cols-2 gap-16 items-center">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
@@ -105,7 +101,7 @@ const AboutUs = () => {
 
         {/* Values */}
         <section className="py-24">
-          <div className="container mx-auto max-w-5xl">
+          <div className="container mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -187,9 +183,7 @@ const AboutUs = () => {
             </motion.div>
           </div>
         </section>
-      </main>
-      <Footer />
-    </div>
+    </>
   );
 };
 

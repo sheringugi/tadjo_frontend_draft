@@ -1,8 +1,6 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Package, Truck, Home, ArrowRight } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 
 const steps = [
@@ -13,12 +11,17 @@ const steps = [
 ];
 
 const OrderConfirmation = () => {
-  const orderNumber = `ORD-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+  const location = useLocation();
+  const orderNumber = location.state?.orderId;
+
+  // If there's no order number in the state, the user likely accessed this page directly.
+  // Redirect them to the homepage.
+  if (!orderNumber) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="pt-20 md:pt-24 pb-16">
+    <div className="pt-20 md:pt-24 pb-16">
         <div className="container mx-auto max-w-2xl">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -139,8 +142,6 @@ const OrderConfirmation = () => {
             </Link>
           </motion.div>
         </div>
-      </main>
-      <Footer />
     </div>
   );
 };

@@ -1,18 +1,26 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { products, categories } from '@/lib/store';
+import { fetchProducts, Product } from '@/lib/store';
+
+interface Category {
+  id: string;
+  name: string;
+  productCount?: number;
+}
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   const initialCategory = searchParams.get('category') || '';
   
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
@@ -21,11 +29,44 @@ const Products = () => {
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [sortBy, setSortBy] = useState('featured');
 
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        // 1. Fetch Products first
+        const productsData = await fetchProducts();
+        setProducts(productsData);
+
+        // 2. Fetch Categories independently
+        try {
+          const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
+          const response = await fetch(`${apiUrl}/categories/`);
+          if (response.ok) {
+            const categoriesData = await response.json();
+            // Calculate counts based on loaded products
+            const categoriesWithCounts = categoriesData.map((cat: any) => ({
+              ...cat,
+              productCount: productsData.filter(p => p.category_id === cat.id).length
+            }));
+            setCategories(categoriesWithCounts);
+          }
+        } catch (catError) {
+          console.error("Failed to load categories:", catError);
+        }
+      } catch (error) {
+        console.error("Failed to load products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
   const filteredProducts = useMemo(() => {
     let result = [...products];
     
     if (selectedCategories.length > 0) {
-      result = result.filter(p => selectedCategories.includes(p.category));
+      result = result.filter(p => selectedCategories.includes(p.category_id));
     }
     
     result = result.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
@@ -38,14 +79,14 @@ const Products = () => {
         result.sort((a, b) => b.price - a.price);
         break;
       case 'rating':
-        result.sort((a, b) => b.rating - a.rating);
+        result.sort((a, b) => b.rating - a.rating); // Assuming rating exists on backend product
         break;
       default:
         break;
     }
     
     return result;
-  }, [selectedCategories, priceRange, sortBy]);
+  }, [products, selectedCategories, priceRange, sortBy]);
 
   const toggleCategory = (categoryId: string) => {
     setSelectedCategories(prev =>
@@ -81,7 +122,7 @@ const Products = () => {
                 {category.name}
               </span>
               <span className="text-xs text-muted-foreground ml-auto">
-                ({category.productCount})
+                ({category.productCount || 0})
               </span>
             </label>
           ))}
@@ -119,9 +160,7 @@ const Products = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="pt-28 md:pt-36 pb-24">
+    <div className="pt-20 md:pt-24 pb-24">
         <div className="container mx-auto">
           {/* Header */}
           <motion.div
@@ -195,13 +234,17 @@ const Products = () => {
               </div>
 
               {/* Products Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-                {filteredProducts.map((product, index) => (
-                  <ProductCard key={product.id} product={product} index={index} />
-                ))}
-              </div>
+              {isLoading ? (
+                <p className="text-center py-20 text-muted-foreground">Loading products...</p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+                  {filteredProducts.map((product, index) => (
+                    <ProductCard key={product.id} product={product} index={index} />
+                  ))}
+                </div>
+              )}
 
-              {filteredProducts.length === 0 && (
+              {!isLoading && filteredProducts.length === 0 && (
                 <div className="text-center py-20">
                   <p className="text-muted-foreground">No products found</p>
                   <Button 
@@ -216,8 +259,6 @@ const Products = () => {
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
     </div>
   );
 };

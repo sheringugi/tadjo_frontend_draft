@@ -1,24 +1,57 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Minus, Plus, Heart } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { products, addToCart } from '@/lib/store';
+import { fetchProduct, addToCart, Product } from '@/lib/store';
 import { getSupplierForProduct } from '@/lib/suppliers';
+import { isInWishlist, toggleWishlist } from '@/lib/wishlist';
 import { useToast } from '@/hooks/use-toast';
 
 const ProductDetail = () => {
   const { id } = useParams();
   const [quantity, setQuantity] = useState(1);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [wishlisted, setWishlisted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  const product = products.find(p => p.id === id);
+  useEffect(() => {
+    const loadData = async () => {
+      if (!id) return;
+      try {
+        const data = await fetchProduct(id);
+        setProduct(data);
+        setWishlisted(isInWishlist(data.id));
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, [id]);
+
+  useEffect(() => {
+    const checkWishlist = () => {
+      if (product) setWishlisted(isInWishlist(product.id));
+    };
+    window.addEventListener('wishlist-updated', checkWishlist);
+    return () => window.removeEventListener('wishlist-updated', checkWishlist);
+  }, [product]);
+
   const supplier = product ? getSupplierForProduct(product.id) : undefined;
-  const relatedProducts = products.filter(p => p.id !== id && p.category === product?.category).slice(0, 4);
+  // const relatedProducts = products.filter(p => p.id !== id && p.category === product?.category).slice(0, 4);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading product...</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -33,6 +66,10 @@ const ProductDetail = () => {
     );
   }
 
+  const badgeLabel = product.badge === 'bestseller' ? 'Best Seller' : 
+                     product.badge === 'new' ? 'New' : 
+                     product.badge === 'limited' ? 'Limited Edition' : null;
+
   const handleAddToCart = () => {
     addToCart(product, quantity);
     toast({
@@ -41,10 +78,15 @@ const ProductDetail = () => {
     });
   };
 
+  const handleToggleWishlist = async () => {
+    if (!product) return;
+    const added = await toggleWishlist(product.id);
+    setWishlisted(added);
+    toast({ title: added ? 'Added to wishlist' : 'Removed from wishlist' });
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="pt-28 md:pt-36 pb-24">
+    <div className="pt-20 md:pt-24 pb-24">
         <div className="container mx-auto">
           {/* Breadcrumb */}
           <motion.div
@@ -72,17 +114,15 @@ const ProductDetail = () => {
             >
               <div className="aspect-[3/4] overflow-hidden bg-secondary">
                 <img
-                  src={product.image}
+                  src={product.image_url}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
               </div>
-              {product.badge && (
+              {badgeLabel && (
                 <div className="absolute top-6 left-6">
                   <span className="text-[10px] tracking-luxury uppercase bg-background/95 backdrop-blur-sm px-3 py-1.5 text-foreground">
-                    {product.badge === 'bestseller' ? 'Best Seller' : 
-                     product.badge === 'new' ? 'New' : 
-                     product.badge === 'limited' ? 'Limited Edition' : ''}
+                    {badgeLabel}
                   </span>
                 </div>
               )}
@@ -103,7 +143,7 @@ const ProductDetail = () => {
                   {product.name}
                 </h1>
                 <p className="text-xl text-foreground">
-                  CHF {product.price.toFixed(0)}
+                  CHF {Number(product.price).toFixed(0)}
                 </p>
               </div>
 
@@ -159,8 +199,9 @@ const ProductDetail = () => {
                     variant="outline" 
                     size="icon" 
                     className="h-12 w-12 rounded-none border-foreground"
+                    onClick={handleToggleWishlist}
                   >
-                    <Heart className="w-4 h-4" />
+                    <Heart className={`w-4 h-4 ${wishlisted ? 'fill-foreground text-foreground' : ''}`} />
                   </Button>
                 </div>
               </div>
@@ -168,7 +209,7 @@ const ProductDetail = () => {
               {/* Shipping Note */}
               <div className="border-t border-border pt-6 space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  Complimentary shipping on orders over CHF 150. Estimated delivery: {product.shippingDays} business days.
+                  Complimentary shipping on orders over CHF 150. Estimated delivery: {product.shipping_days} business days.
                 </p>
                 {supplier && (
                   <p className="text-xs text-muted-foreground">
@@ -202,9 +243,9 @@ const ProductDetail = () => {
                 </TabsList>
                 <TabsContent value="details" className="mt-6">
                   <ul className="space-y-2">
-                    {product.specifications.map((spec, index) => (
+                    {product.specifications?.map((spec, index) => (
                       <li key={index} className="text-sm text-muted-foreground">
-                        • {spec}
+                        • {spec.spec}
                       </li>
                     ))}
                   </ul>
@@ -230,7 +271,7 @@ const ProductDetail = () => {
           </div>
 
           {/* Related Products */}
-          {relatedProducts.length > 0 && (
+          {/* {relatedProducts.length > 0 && (
             <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -251,10 +292,8 @@ const ProductDetail = () => {
                 ))}
               </div>
             </motion.section>
-          )}
+          )} */}
         </div>
-      </main>
-      <Footer />
     </div>
   );
 };

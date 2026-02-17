@@ -1,42 +1,50 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, ShoppingBag, Trash2, ArrowLeft } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { products } from '@/lib/store';
-import { addToCart } from '@/lib/store';
+import { addToCart, Product, fetchProducts } from '@/lib/store';
 import { getWishlist, removeFromWishlist } from '@/lib/wishlist';
 import { useToast } from '@/hooks/use-toast';
 
 const Wishlist = () => {
   const [wishlistIds, setWishlistIds] = useState(getWishlist());
+  const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]); // Placeholder
   const { toast } = useToast();
 
-  const wishlistProducts = products.filter(p => wishlistIds.includes(p.id));
+  useEffect(() => {
+    const loadWishlistProducts = async () => {
+      const allProducts = await fetchProducts();
+      const filtered = allProducts.filter(p => wishlistIds.includes(p.id));
+      setWishlistProducts(filtered);
+    };
 
-  const handleRemove = (productId: string) => {
-    removeFromWishlist(productId);
+    if (wishlistIds.length > 0) loadWishlistProducts();
+    else setWishlistProducts([]);
+  }, [wishlistIds]);
+
+  const handleRemove = async (productId: string) => {
+    await removeFromWishlist(productId);
     setWishlistIds(getWishlist());
+    window.dispatchEvent(new Event('wishlist-updated'));
     toast({ title: 'Removed from wishlist' });
   };
 
-  const handleMoveToCart = (productId: string) => {
-    const product = products.find(p => p.id === productId);
+  const handleMoveToCart = async (productId: string) => {
+    const product = wishlistProducts.find(p => p.id === productId);
     if (product) {
-      addToCart(product, 1);
-      removeFromWishlist(productId);
+      await addToCart(product, 1);
+      window.dispatchEvent(new Event('cart-updated'));
+      await removeFromWishlist(productId);
       setWishlistIds(getWishlist());
+      window.dispatchEvent(new Event('wishlist-updated'));
       toast({ title: 'Moved to bag', description: `${product.name} added to your bag.` });
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="pt-28 md:pt-36 pb-24">
-        <div className="container mx-auto max-w-5xl">
+    <div className="pt-20 md:pt-24 pb-24">
+      <div className="container mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
             <Link
               to="/products"
@@ -73,7 +81,7 @@ const Wishlist = () => {
                   <Link to={`/product/${product.id}`} className="block">
                     <div className="aspect-square overflow-hidden bg-secondary">
                       <img
-                        src={product.image}
+                        src={product.image_url}
                         alt={product.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
@@ -107,8 +115,6 @@ const Wishlist = () => {
             </div>
           )}
         </div>
-      </main>
-      <Footer />
     </div>
   );
 };

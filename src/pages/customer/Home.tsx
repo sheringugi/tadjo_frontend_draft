@@ -1,13 +1,31 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Hero from '@/components/Hero';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import Categories from '@/components/Categories';
 import TrustBadges from '@/components/TrustBadges';
 import ProductCard from '@/components/ProductCard';
-import { products } from '@/lib/store';
+import { fetchProducts, Product } from '@/lib/store';
 import { motion } from 'framer-motion';
 
 const Home = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await fetchProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
   return (
     <>
       <Hero />
@@ -27,9 +45,13 @@ const Home = () => {
             <h2 className="text-3xl md:text-4xl font-display text-foreground">Best Sellers</h2>
           </motion.div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.filter(p => p.badge === 'bestseller' || p.reviews > 100).slice(0, 4).map((product, i) => (
-              <ProductCard key={product.id} product={product} index={i} />
-            ))}
+            {isLoading ? (
+              <p className="text-center col-span-4 text-muted-foreground">Loading products...</p>
+            ) : (
+              products.slice(0, 4).map((product, i) => (
+                <ProductCard key={product.id} product={product} index={i} />
+              ))
+            )}
           </div>
         </div>
       </section>

@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, MapPin, Clock, Send, MessageSquare } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,10 +22,8 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="pt-28 md:pt-36 pb-24">
-        <div className="container mx-auto max-w-5xl">
+    <div className="pt-20 md:pt-24 pb-24">
+      <div className="container mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
             <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">Get in Touch</p>
             <h1 className="text-4xl md:text-5xl font-display text-foreground mb-4">Contact Us</h1>
@@ -112,8 +108,6 @@ const Contact = () => {
             </motion.div>
           </div>
         </div>
-      </main>
-      <Footer />
     </div>
   );
 };

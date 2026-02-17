@@ -1,12 +1,28 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import ProductCard from './ProductCard';
-import { products } from '@/lib/store';
+import { fetchProducts, Product } from '@/lib/store';
 
 const FeaturedProducts = () => {
-  const featuredProducts = products.slice(0, 4);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await fetchProducts();
+        setProducts(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, []);
 
   return (
     <section className="py-24 md:py-32">
@@ -30,9 +46,13 @@ const FeaturedProducts = () => {
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-          {featuredProducts.map((product, index) => (
-            <ProductCard key={product.id} product={product} index={index} />
-          ))}
+          {isLoading ? (
+            <p className="text-center col-span-4 text-muted-foreground">Loading featured pieces...</p>
+          ) : (
+            products.slice(0, 4).map((product, index) => (
+              <ProductCard key={product.id} product={product} index={index} />
+            ))
+          )}
         </div>
 
         <motion.div

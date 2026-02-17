@@ -85,7 +85,13 @@ export const customerRegister = async (userData: {
   const res = await fetch(`${API_BASE}/users/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(userData),
+    body: JSON.stringify({
+      email: userData.email,
+      password: userData.password,
+      full_name: `${userData.first_name} ${userData.last_name}`,
+      phone: "",
+      locale: "en",
+    }),
   });
 
   if (!res.ok) throw new Error('Registration failed');
@@ -94,10 +100,13 @@ export const customerRegister = async (userData: {
 
 // Admin login
 export const adminLogin = async (email: string, password: string) => {
+  const formData = new FormData();
+  formData.append('username', email);
+  formData.append('password', password);
+
   const res = await fetch(`${API_BASE}/auth/admin/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: formData,
   });
 
   if (!res.ok) throw new Error('Invalid admin credentials');

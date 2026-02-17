@@ -16,24 +16,25 @@ const Login = () => {
   const location = useLocation();
   const { toast } = useToast();
 
-  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/account';
+  // Get the redirect path from location state or default to /account
+  const from = location.state?.from?.pathname || '/account';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     try {
       await customerLogin(email, password);
-      toast({ title: 'Welcome back!' });
+      toast({ title: 'Welcome back!', description: 'Successfully signed in.' });
       navigate(from, { replace: true });
-    } catch {
-      toast({ title: 'Login failed', description: 'Please check your credentials.', variant: 'destructive' });
+    } catch (error) {
+      toast({ title: 'Login failed', description: 'Invalid email or password.', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="pt-28 md:pt-36 pb-24">
+    <div className="pt-20 md:pt-24 pb-24">
       <div className="container mx-auto max-w-md">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
           <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">Welcome Back</p>
@@ -49,26 +50,12 @@ const Login = () => {
         >
           <div className="space-y-2">
             <Label htmlFor="email" className="text-xs text-muted-foreground">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="rounded-none"
-              required
-            />
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-none" required />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="password" className="text-xs text-muted-foreground">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="rounded-none"
-              required
-            />
+            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="rounded-none" required />
           </div>
 
           <Button
@@ -76,7 +63,7 @@ const Login = () => {
             disabled={isLoading}
             className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-none h-12 text-xs tracking-luxury uppercase"
           >
-            {isLoading ? 'Signing In...' : (
+            {isLoading ? 'Signing in...' : (
               <>
                 Sign In
                 <ArrowRight className="ml-2 w-4 h-4" />
@@ -87,7 +74,7 @@ const Login = () => {
           <p className="text-center text-sm text-muted-foreground">
             Don't have an account?{' '}
             <Link to="/register" className="text-foreground underline underline-offset-4">
-              Create one
+              Create account
             </Link>
           </p>
         </motion.form>

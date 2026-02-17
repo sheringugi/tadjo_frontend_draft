@@ -2,24 +2,47 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Lock } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { getCart, getCartTotal, clearCart, CartItem } from '@/lib/store';
-import { createSupplierOrdersFromCustomerOrder } from '@/lib/suppliers';
 import { useToast } from '@/hooks/use-toast';
+import { getCurrentUser, customerFetch } from '@/lib/auth';
 
 const Checkout = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    zip: '',
+  });
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const user = await getCurrentUser();
+        setFormData(prev => ({
+          ...prev,
+          firstName: user.full_name?.split(' ')[0] || '',
+          lastName: user.full_name?.split(' ').slice(1).join(' ') || '',
+          email: user.email || '',
+          phone: user.phone || '',
+        }));
+      } catch (e) {
+        console.error("Failed to load user data", e);
+      }
+    };
+    loadUser();
+
     const items = getCart();
     if (items.length === 0) {
       navigate('/cart');
@@ -31,35 +54,78 @@ const Checkout = () => {
   const shipping = subtotal > 150 ? 0 : 15;
   const total = subtotal + shipping;
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
 
-    // Simulate payment processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const user = await getCurrentUser();
 
-    // Generate a customer order ID and auto-create supplier orders
-    const customerOrderId = `ORD-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-    const orderItems = cartItems.map(item => ({
-      productId: item.product.id,
-      productName: item.product.name,
-      quantity: item.quantity,
-    }));
-    createSupplierOrdersFromCustomerOrder(customerOrderId, orderItems);
+      // 1. Create Address
+      const addressRes = await customerFetch('/addresses/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.id,
+          line1: formData.address,
+          city: formData.city,
+          postal_code: formData.zip,
+          country: 'CH',
+          is_default: true
+        })
+      });
 
-    clearCart();
-    toast({
-      title: "Order confirmed",
-      description: "Supplier orders have been auto-generated.",
-    });
-    navigate('/order-confirmation');
+      if (!addressRes.ok) {
+        const errorData = await addressRes.json();
+        console.error("Address creation failed:", errorData);
+        throw new Error('Failed to save address');
+      }
+      const savedAddress = await addressRes.json();
+
+      // 2. Create Order
+      const orderRes = await customerFetch('/orders/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.id,
+          shipping_address_id: savedAddress.id,
+          payment_method: paymentMethod,
+          items: cartItems.map(item => ({
+            product_id: item.product.id,
+            quantity: item.quantity
+          }))
+        })
+      });
+
+      if (!orderRes.ok) throw new Error('Failed to place order');
+      const savedOrder = await orderRes.json();
+
+      clearCart();
+      toast({
+        title: "Order confirmed",
+        description: "Your order has been placed successfully.",
+      });
+      navigate('/order-confirmation', { state: { orderId: savedOrder.order_number } });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Checkout failed",
+        description: "There was a problem processing your order.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="pt-28 md:pt-36 pb-24">
-        <div className="container mx-auto max-w-5xl">
+    <div className="pt-20 md:pt-24 pb-24">
+      <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -93,27 +159,31 @@ const Checkout = () => {
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="firstName" className="text-xs text-muted-foreground">First Name</Label>
-                      <Input id="firstName" className="rounded-none" required />
+                      <Input id="firstName" className="rounded-none" required value={formData.firstName} onChange={handleInputChange} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="lastName" className="text-xs text-muted-foreground">Last Name</Label>
-                      <Input id="lastName" className="rounded-none" required />
+                      <Input id="lastName" className="rounded-none" required value={formData.lastName} onChange={handleInputChange} />
                     </div>
                     <div className="space-y-2 sm:col-span-2">
                       <Label htmlFor="email" className="text-xs text-muted-foreground">Email</Label>
-                      <Input id="email" type="email" className="rounded-none" required />
+                      <Input id="email" type="email" className="rounded-none" required value={formData.email} onChange={handleInputChange} />
+                    </div>
+                    <div className="space-y-2 sm:col-span-2">
+                      <Label htmlFor="phone" className="text-xs text-muted-foreground">Phone</Label>
+                      <Input id="phone" type="tel" className="rounded-none" required value={formData.phone} onChange={handleInputChange} />
                     </div>
                     <div className="space-y-2 sm:col-span-2">
                       <Label htmlFor="address" className="text-xs text-muted-foreground">Address</Label>
-                      <Input id="address" className="rounded-none" required />
+                      <Input id="address" className="rounded-none" required value={formData.address} onChange={handleInputChange} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="city" className="text-xs text-muted-foreground">City</Label>
-                      <Input id="city" className="rounded-none" required />
+                      <Input id="city" className="rounded-none" required value={formData.city} onChange={handleInputChange} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="zip" className="text-xs text-muted-foreground">Postal Code</Label>
-                      <Input id="zip" className="rounded-none" required />
+                      <Input id="zip" className="rounded-none" required value={formData.zip} onChange={handleInputChange} />
                     </div>
                   </div>
                 </motion.div>
@@ -196,7 +266,7 @@ const Checkout = () => {
                       <div key={item.product.id} className="flex gap-4">
                         <div className="w-16 h-20 overflow-hidden bg-secondary flex-shrink-0">
                           <img
-                            src={item.product.image}
+                            src={item.product.image_url}
                             alt={item.product.name}
                             className="w-full h-full object-cover"
                           />
@@ -261,8 +331,6 @@ const Checkout = () => {
             </div>
           </form>
         </div>
-      </main>
-      <Footer />
     </div>
   );
 };

@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, ArrowLeft } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -19,17 +17,20 @@ const Cart = () => {
   const [promoCode, setPromoCode] = useState('');
 
   useEffect(() => {
-    setCartItems(getCart());
+    const updateCart = () => setCartItems(getCart());
+    updateCart();
+    window.addEventListener('cart-updated', updateCart);
+    return () => window.removeEventListener('cart-updated', updateCart);
   }, []);
 
-  const handleUpdateQuantity = (productId: string, quantity: number) => {
-    const updated = updateCartQuantity(productId, quantity);
-    setCartItems(updated);
+  const handleUpdateQuantity = async (productId: string, quantity: number) => {
+    await updateCartQuantity(productId, quantity);
+    // State update handled by event listener
   };
 
-  const handleRemove = (productId: string) => {
-    const updated = removeFromCart(productId);
-    setCartItems(updated);
+  const handleRemove = async (productId: string) => {
+    await removeFromCart(productId);
+    // State update handled by event listener
   };
 
   const subtotal = getCartTotal();
@@ -38,9 +39,7 @@ const Cart = () => {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="pt-28 md:pt-36 pb-24">
+      <div className="pt-20 md:pt-24 pb-24">
           <div className="container mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -64,16 +63,12 @@ const Cart = () => {
               </Link>
             </motion.div>
           </div>
-        </main>
-        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <main className="pt-28 md:pt-36 pb-24">
+    <div className="pt-20 md:pt-24 pb-24">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -111,7 +106,7 @@ const Cart = () => {
                     <Link to={`/product/${item.product.id}`}>
                       <div className="w-28 h-36 md:w-32 md:h-40 overflow-hidden bg-secondary flex-shrink-0">
                         <img
-                          src={item.product.image}
+                          src={item.product.image_url}
                           alt={item.product.name}
                           className="w-full h-full object-cover"
                         />
@@ -245,8 +240,6 @@ const Cart = () => {
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
     </div>
   );
 };

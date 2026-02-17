@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate, NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -9,6 +9,10 @@ import {
   Menu,
   X,
   ChevronRight,
+  Package,
+  Folder,
+  Star,
+  HeartHandshake,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { adminLogout } from '@/lib/auth';
@@ -17,6 +21,10 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/admin/orders', label: 'Orders', icon: ShoppingCart },
+  { to: '/admin/products', label: 'Products', icon: Package },
+  { to: '/admin/categories', label: 'Categories', icon: Folder },
+  { to: '/admin/reviews', label: 'Reviews', icon: Star },
+  { to: '/admin/contributions', label: 'Contributions', icon: HeartHandshake },
   { to: '/admin/complaints', label: 'Complaints', icon: MessageSquareWarning },
   { to: '/admin/returns', label: 'Returns', icon: RotateCcw },
 ];
@@ -32,26 +40,26 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-40 flex flex-col bg-white border-r border-slate-200 transition-all duration-300',
+          'fixed inset-y-0 left-0 z-40 flex flex-col bg-background border-r border-border transition-all duration-300',
           sidebarOpen ? 'w-60' : 'w-16'
         )}
       >
         {/* Logo */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-border">
           {sidebarOpen && (
-            <Link to="/admin/dashboard" className="font-semibold text-lg text-slate-900 tracking-tight">
-              TAJDO <span className="text-xs font-normal text-slate-500 ml-1">Admin</span>
+            <Link to="/admin/dashboard" className="font-display font-medium text-xl text-foreground tracking-wide">
+              TAJDO <span className="text-xs font-sans font-normal text-muted-foreground ml-1">Admin</span>
             </Link>
           )}
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="text-slate-500 hover:text-slate-900 shrink-0"
+            className="text-muted-foreground hover:text-foreground shrink-0"
           >
             {sidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </Button>
@@ -102,13 +110,13 @@ const AdminLayout = () => {
         )}
       >
         {/* Top bar */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-30">
-          <h2 className="text-sm font-medium text-slate-500">
+        <header className="h-16 bg-background border-b border-border flex items-center justify-between px-6 sticky top-0 z-30">
+          <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
             {navItems.find((i) => location.pathname.startsWith(i.to))?.label || 'Admin'}
           </h2>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-slate-600">Admin</span>
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 text-xs font-bold">
+            <span className="text-sm text-muted-foreground">Administrator</span>
+            <div className="w-8 h-8 rounded-none bg-secondary flex items-center justify-center text-foreground text-xs font-bold">
               A
             </div>
           </div>

@@ -1,18 +1,20 @@
 // TAJDO - Luxury Pet Accessories Store
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+
 export interface Product {
   id: string;
   name: string;
   price: number;
-  originalPrice?: number;
-  image: string;
-  category: string;
+  original_price?: number;
+  image_url: string;
+  category_id: string;
   rating: number;
-  reviews: number;
+  review_count: number;
   description: string;
-  specifications: string[];
-  shippingDays: number;
-  inStock: boolean;
+  specifications: { spec: string }[];
+  shipping_days: number;
+  in_stock: boolean;
   badge?: 'bestseller' | 'new' | 'limited';
   material?: string;
   color?: string;
@@ -39,160 +41,165 @@ export const categories: Category[] = [
   { id: 'accessories', name: 'Accessories', description: 'Finishing touches', productCount: 15 },
 ];
 
-export const products: Product[] = [
-  {
-    id: '1',
-    name: 'The Heritage Collar',
-    price: 145.00,
-    image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=600&h=600&fit=crop',
-    category: 'collars',
-    rating: 5.0,
-    reviews: 127,
-    description: 'Handcrafted from Italian vegetable-tanned leather with solid brass hardware. Features a subtle embossed TAJDO logo and adjustable fit.',
-    specifications: ['Italian vegetable-tanned leather', 'Solid brass hardware', 'Hand-stitched', 'Water-resistant finish'],
-    shippingDays: 5,
-    inStock: true,
-    badge: 'bestseller',
-    material: 'Italian Leather',
-    color: 'Cognac',
-  },
-  {
-    id: '2',
-    name: 'Cloud Nine Pet Bed',
-    price: 295.00,
-    image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=600&h=600&fit=crop',
-    category: 'beds',
-    rating: 4.9,
-    reviews: 89,
-    description: 'Ultra-plush memory foam bed with removable linen cover. Designed for orthopedic support and timeless elegance.',
-    specifications: ['Memory foam core', 'Removable linen cover', 'Machine washable', 'Non-slip base'],
-    shippingDays: 7,
-    inStock: true,
-    badge: 'new',
-    material: 'Linen & Memory Foam',
-    color: 'Natural Oatmeal',
-  },
-  {
-    id: '3',
-    name: 'Parisian Leash',
-    price: 120.00,
-    image: 'https://images.unsplash.com/photo-1601758124510-52d02ddb7cbd?w=600&h=600&fit=crop',
-    category: 'leashes',
-    rating: 4.8,
-    reviews: 156,
-    description: 'Woven cotton rope leash with leather handle. Features champagne gold hardware for a refined finish.',
-    specifications: ['Cotton rope with leather accent', 'Champagne gold hardware', '1.5m length', 'Comfortable grip'],
-    shippingDays: 4,
-    inStock: true,
-    material: 'Cotton & Leather',
-    color: 'Sand',
-  },
-  {
-    id: '4',
-    name: 'Artisan Ceramic Bowl',
-    price: 85.00,
-    image: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=600&fit=crop',
-    category: 'bowls',
-    rating: 4.9,
-    reviews: 203,
-    description: 'Hand-thrown ceramic bowl with a weighted base. Each piece is unique with subtle variations.',
-    specifications: ['Hand-thrown ceramic', 'Food-safe glaze', 'Weighted base', 'Dishwasher safe'],
-    shippingDays: 3,
-    inStock: true,
-    badge: 'bestseller',
-    material: 'Ceramic',
-    color: 'Warm White',
-  },
-  {
-    id: '5',
-    name: 'Voyager Travel Carrier',
-    price: 425.00,
-    image: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=600&fit=crop',
-    category: 'carriers',
-    rating: 5.0,
-    reviews: 64,
-    description: 'Airline-approved carrier in soft Italian leather with breathable mesh panels. Features a padded interior and secure closure.',
-    specifications: ['Italian leather exterior', 'Padded sherpa interior', 'Airline approved', 'Ventilated mesh panels'],
-    shippingDays: 7,
-    inStock: true,
-    badge: 'limited',
-    material: 'Italian Leather',
-    color: 'Graphite',
-  },
-  {
-    id: '6',
-    name: 'Classic Harness',
-    price: 165.00,
-    image: 'https://images.unsplash.com/photo-1558788353-f76d92427f16?w=600&h=600&fit=crop',
-    category: 'accessories',
-    rating: 4.7,
-    reviews: 98,
-    description: 'Step-in harness designed for comfort and control. Features soft padding and adjustable straps.',
-    specifications: ['Padded construction', 'Adjustable fit', 'D-ring for leash', 'Quick-release buckle'],
-    shippingDays: 5,
-    inStock: true,
-    material: 'Leather & Canvas',
-    color: 'Taupe',
-  },
-  {
-    id: '7',
-    name: 'Signature Bandana',
-    price: 48.00,
-    image: 'https://images.unsplash.com/photo-1587764379873-97837921fd44?w=600&h=600&fit=crop',
-    category: 'accessories',
-    rating: 4.8,
-    reviews: 312,
-    description: 'Soft organic cotton bandana with subtle TAJDO monogram. Perfect for everyday style.',
-    specifications: ['100% organic cotton', 'TAJDO monogram', 'Adjustable snap closure', 'Multiple sizes'],
-    shippingDays: 2,
-    inStock: true,
-    badge: 'new',
-    material: 'Organic Cotton',
-    color: 'Cream',
-  },
-  {
-    id: '8',
-    name: 'The Elevated Feeder',
-    price: 195.00,
-    image: 'https://images.unsplash.com/photo-1560807707-8cc77767d783?w=600&h=600&fit=crop',
-    category: 'bowls',
-    rating: 4.9,
-    reviews: 76,
-    description: 'Solid oak stand with twin stainless steel bowls. Ergonomic height for comfortable dining.',
-    specifications: ['Solid oak construction', 'Stainless steel bowls', 'Ergonomic height', 'Non-slip feet'],
-    shippingDays: 6,
-    inStock: true,
-    material: 'Oak & Stainless Steel',
-    color: 'Natural Oak',
-  },
-];
+export const fetchProducts = async (): Promise<Product[]> => {
+  const res = await fetch(`${API_BASE}/products/`);
+  if (!res.ok) throw new Error('Failed to fetch products');
+  const data = await res.json();
+  return data.map((p: any) => ({
+    ...p,
+    price: Number(p.price),
+    original_price: p.original_price ? Number(p.original_price) : undefined,
+    rating: p.rating ? Number(p.rating) : 0,
+  }));
+};
+
+export const fetchProduct = async (id: string): Promise<Product> => {
+  const res = await fetch(`${API_BASE}/products/${id}`);
+  if (!res.ok) throw new Error('Failed to fetch product');
+  const data = await res.json();
+  return {
+    ...data,
+    price: Number(data.price),
+    original_price: data.original_price ? Number(data.original_price) : undefined,
+    rating: data.rating ? Number(data.rating) : 0,
+  };
+};
 
 // Simple cart state management
 let cart: CartItem[] = [];
 
+// Initialize from local storage for guests immediately
+try {
+  const localCart = localStorage.getItem('cart');
+  if (localCart) {
+    cart = JSON.parse(localCart);
+  }
+} catch (e) {
+  console.error('Failed to parse cart from local storage');
+}
+
 export const getCart = () => cart;
 
-export const addToCart = (product: Product, quantity: number = 1) => {
+export const initializeCart = async () => {
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    try {
+      // Get user ID first
+      const userRes = await fetch(`${API_BASE}/users/me/`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (userRes.ok) {
+        const user = await userRes.json();
+        const cartRes = await fetch(`${API_BASE}/users/${user.id}/cart/items/`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (cartRes.ok) {
+          const backendItems = await cartRes.json();
+          const newCart: CartItem[] = [];
+          
+          // Fetch full product details for each cart item
+          for (const item of backendItems) {
+            try {
+              const product = await fetchProduct(item.product_id);
+              newCart.push({ product, quantity: item.quantity });
+            } catch (e) {
+              console.error(`Failed to load product ${item.product_id}`);
+            }
+          }
+          
+          if (newCart.length > 0) {
+            cart = newCart;
+            localStorage.setItem('cart', JSON.stringify(cart));
+            window.dispatchEvent(new Event('cart-updated'));
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to sync cart with backend', error);
+    }
+  }
+};
+
+export const addToCart = async (product: Product, quantity: number = 1) => {
+  const token = localStorage.getItem('access_token');
+
   const existingItem = cart.find(item => item.product.id === product.id);
   if (existingItem) {
     existingItem.quantity += quantity;
   } else {
     cart.push({ product, quantity });
   }
+  
+  localStorage.setItem('cart', JSON.stringify(cart));
+  window.dispatchEvent(new Event('cart-updated'));
+
+  if (token) {
+    try {
+      await fetch(`${API_BASE}/cart/items/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          product_id: product.id,
+          quantity: quantity
+        })
+      });
+    } catch (e) {
+      console.error('Failed to add to backend cart', e);
+    }
+  }
+
   return [...cart];
 };
 
-export const removeFromCart = (productId: string) => {
+export const removeFromCart = async (productId: string) => {
+  const token = localStorage.getItem('access_token');
   cart = cart.filter(item => item.product.id !== productId);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  window.dispatchEvent(new Event('cart-updated'));
+
+  if (token) {
+    try {
+      await fetch(`${API_BASE}/cart/items/${productId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    } catch (e) {
+      console.error('Failed to remove from backend cart', e);
+    }
+  }
   return [...cart];
 };
 
-export const updateCartQuantity = (productId: string, quantity: number) => {
+export const updateCartQuantity = async (productId: string, quantity: number) => {
+  const token = localStorage.getItem('access_token');
   const item = cart.find(item => item.product.id === productId);
   if (item) {
-    item.quantity = Math.max(0, quantity);
-    if (item.quantity === 0) {
+    const newQuantity = Math.max(0, quantity);
+    if (newQuantity === 0) {
       return removeFromCart(productId);
+    }
+    item.quantity = newQuantity;
+    localStorage.setItem('cart', JSON.stringify(cart));
+    window.dispatchEvent(new Event('cart-updated'));
+
+    if (token) {
+      try {
+        await fetch(`${API_BASE}/cart/items/${productId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ quantity: newQuantity })
+        });
+      } catch (e) {
+        console.error('Failed to update backend cart', e);
+      }
     }
   }
   return [...cart];
@@ -208,5 +215,7 @@ export const getCartCount = () => {
 
 export const clearCart = () => {
   cart = [];
+  localStorage.removeItem('cart');
+  window.dispatchEvent(new Event('cart-updated'));
   return [];
 };

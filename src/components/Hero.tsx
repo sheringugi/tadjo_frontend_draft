@@ -50,7 +50,8 @@ const Hero = () => {
                   <ArrowRight className="ml-3 w-4 h-4" />
                 </Button>
               </Link>
-              <Link to="/products">
+              
+              <Link to="/about">
                 <Button 
                   size="lg" 
                   variant="outline" 

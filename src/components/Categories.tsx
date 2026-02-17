@@ -1,28 +1,37 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-const categoryImages = [
-  {
-    id: 'collars',
-    name: 'Collars',
-    image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=600&h=800&fit=crop',
-    description: 'Handcrafted in Italian leather',
-  },
-  {
-    id: 'beds',
-    name: 'Beds',
-    image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=600&h=800&fit=crop',
-    description: 'Designed for comfort',
-  },
-  {
-    id: 'accessories',
-    name: 'Accessories',
-    image: 'https://images.unsplash.com/photo-1587764379873-97837921fd44?w=600&h=800&fit=crop',
-    description: 'Finishing touches',
-  },
-];
+interface Category {
+  id: string;
+  name: string;
+  description: string;
+}
 
 const Categories = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        // Fetch categories from the backend
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
+        const response = await fetch(`${apiUrl}/categories/`);
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   return (
     <section className="py-24 md:py-32 bg-secondary/30">
       <div className="container mx-auto">
@@ -42,7 +51,10 @@ const Categories = () => {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          {categoryImages.map((category, index) => (
+          {isLoading ? (
+            <div className="col-span-3 text-center py-12 text-muted-foreground">Loading collections...</div>
+          ) : (
+            categories.map((category, index) => (
             <motion.div
               key={category.id}
               initial={{ opacity: 0, y: 20 }}
@@ -51,30 +63,18 @@ const Categories = () => {
               transition={{ delay: index * 0.1, duration: 0.6 }}
             >
               <Link to={`/products?category=${category.id}`}>
-                <div className="group relative aspect-[3/4] overflow-hidden">
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-foreground/20 transition-opacity duration-300 group-hover:opacity-0" />
-                  
-                  {/* Content */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-end p-8">
-                    <div className="bg-background/95 backdrop-blur-sm px-8 py-6 text-center w-full max-w-xs transition-transform duration-300 group-hover:-translate-y-2">
-                      <h3 className="text-xl font-display text-foreground mb-1">
-                        {category.name}
-                      </h3>
-                      <p className="text-xs text-muted-foreground tracking-wide">
-                        {category.description}
-                      </p>
-                    </div>
-                  </div>
+                <div className="group relative overflow-hidden bg-background border border-border p-12 hover:border-foreground transition-colors duration-300 h-full flex flex-col items-center justify-center text-center min-h-[200px]">
+                  <h3 className="text-2xl font-display text-foreground mb-3 group-hover:scale-105 transition-transform duration-300">
+                    {category.name}
+                  </h3>
+                  <p className="text-sm text-muted-foreground tracking-wide">
+                    {category.description}
+                  </p>
                 </div>
               </Link>
             </motion.div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </section>
