@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect,  } from 'react';
 import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -7,30 +7,37 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { adminFetch } from '@/lib/auth';
+import { useNavigate } from "react-router-dom";
 
 interface Order {
-  id: string | number;
-  customer_name?: string;
+  id: string;
+  order_number: string;
+  user?: {
+    full_name: string;
+  };
   status: string;
-  total?: number;
-  created_at?: string;
+  tracking_number?: string;
+  total: number;
+  created_at: string;
 }
 
 const statusColor = (s: string) => {
-  switch (s) {
-    case 'delivered': return 'bg-emerald-100 text-emerald-700';
-    case 'shipped': return 'bg-blue-100 text-blue-700';
-    case 'processing': return 'bg-amber-100 text-amber-700';
-    case 'pending': return 'bg-slate-100 text-slate-600';
-    default: return 'bg-slate-100 text-slate-600';
-  }
-};
-
+    switch (s) {
+      case 'delivered': return 'bg-emerald-100 text-emerald-700';
+      case 'shipped': return 'bg-blue-100 text-blue-700';
+      case 'processing': return 'bg-amber-100 text-amber-700';
+      case 'cancelled': return 'bg-red-100 text-red-700';
+      case 'refunded': return 'bg-orange-100 text-orange-700';
+      default: return 'bg-slate-100 text-slate-600';
+    }
+  };
 const Orders = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     adminFetch('/admin/orders/')
@@ -45,8 +52,9 @@ const Orders = () => {
     if (search) {
       const q = search.toLowerCase();
       return (
-        String(o.id).toLowerCase().includes(q) ||
-        (o.customer_name || '').toLowerCase().includes(q)
+        String(o.order_number).toLowerCase().includes(q) ||
+        (o.user?.full_name || '').toLowerCase().includes(q) ||
+        (o.tracking_number || '').toLowerCase().includes(q)
       );
     }
     return true;
@@ -81,6 +89,8 @@ const Orders = () => {
                 <SelectItem value="processing">Processing</SelectItem>
                 <SelectItem value="shipped">Shipped</SelectItem>
                 <SelectItem value="delivered">Delivered</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+                <SelectItem value="refunded">Refunded</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -98,18 +108,19 @@ const Orders = () => {
                   <TableHead>Customer</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Tracking #</TableHead>
                   <TableHead className="text-right">Total</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map((order) => (
-                  <TableRow key={order.id} className="cursor-pointer" onClick={() => {}}>
+                  <TableRow key={order.order_number} className="cursor-pointer" onClick={() => {navigate(`/admin/orders/${order.id}`)}}>
                     <TableCell>
                       <Link to={`/admin/orders/${order.id}`} className="text-blue-600 hover:underline font-medium">
-                        #{order.id}
+                        {order.order_number}
                       </Link>
                     </TableCell>
-                    <TableCell>{order.customer_name || 'Customer'}</TableCell>
+                    <TableCell>{order.user?.full_name || 'Customer'}</TableCell>
                     <TableCell className="text-slate-500">
                       {order.created_at ? new Date(order.created_at).toLocaleDateString() : '—'}
                     </TableCell>
@@ -117,6 +128,9 @@ const Orders = () => {
                       <Badge variant="secondary" className={statusColor(order.status)}>
                         {order.status}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="text-blue-600 hover:underline font-medium">
+                        {order.tracking_number || '—'}
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       {order.total != null ? `$${order.total}` : '—'}

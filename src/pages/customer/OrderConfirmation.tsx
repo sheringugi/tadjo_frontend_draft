@@ -1,7 +1,13 @@
-import { Link, useLocation, Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Package, Truck, Home, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Package, Truck, Home, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useStripe, Elements } from '@stripe/react-stripe-js';
+import { stripePromise } from '@/utils/stripe';
+import { customerFetch, getCurrentUser } from '@/lib/auth';
+import { clearCart } from '@/lib/store';
+import { useToast } from '@/hooks/use-toast';
 
 const steps = [
   { icon: CheckCircle2, label: 'Order Placed', status: 'complete' },
@@ -10,15 +16,102 @@ const steps = [
   { icon: Home, label: 'Delivered', status: 'upcoming' },
 ];
 
-const OrderConfirmation = () => {
+const OrderConfirmationContent = () => {
   const location = useLocation();
-  const orderNumber = location.state?.orderId;
+  const navigate = useNavigate();
+  const stripe = useStripe();
+  const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(true);
+  const [orderNumber, setOrderNumber] = useState<string | null>(null);
 
-  // If there's no order number in the state, the user likely accessed this page directly.
-  // Redirect them to the homepage.
-  if (!orderNumber) {
-    return <Navigate to="/" replace />;
+  useEffect(() => {
+    const handleOrderProcessing = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const clientSecret = urlParams.get('payment_intent_client_secret');
+      const paymentIntentId = urlParams.get('payment_intent');
+
+      // Case 1: Returning from Twint (Redirect)
+      if (clientSecret && stripe) {
+        try {
+          const { paymentIntent, error } = await stripe.retrievePaymentIntent(clientSecret);
+          
+          if (error) throw new Error(error.message);
+          if (paymentIntent.status !== 'succeeded') throw new Error('Payment not completed');
+
+          // Retrieve saved data
+          const orderDataStr = sessionStorage.getItem('pending_order_data');
+          if (!orderDataStr) throw new Error('Order data missing');
+          
+          const { address, items } = JSON.parse(orderDataStr);
+          const user = await getCurrentUser();
+
+          // Create Address
+          const addressRes = await customerFetch('/addresses/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(address)
+          });
+          if (!addressRes.ok) throw new Error('Failed to save address');
+          const savedAddress = await addressRes.json();
+
+          // Create Order
+          const orderRes = await customerFetch('/orders/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id: user.id,
+              shipping_address_id: savedAddress.id,
+              payment_method: 'twint',
+              payment_intent_id: paymentIntentId,
+              items
+            })
+          });
+          if (!orderRes.ok) throw new Error('Failed to create order');
+          const savedOrder = await orderRes.json();
+
+          // Cleanup
+          clearCart();
+          sessionStorage.removeItem('pending_order_data');
+          setOrderNumber(savedOrder.order_number);
+          toast({ title: "Order confirmed!", description: "Twint payment successful." });
+
+        } catch (err: any) {
+          console.error(err);
+          toast({ title: "Error", description: err.message, variant: "destructive" });
+          navigate('/cart');
+          return;
+        }
+      } 
+      // Case 2: Direct navigation (Card payment success)
+      else if (location.state?.orderId) {
+        setOrderNumber(location.state.orderId);
+      } 
+      // Case 3: Invalid access (wait for stripe if clientSecret exists)
+      else if (!clientSecret) {
+        navigate('/');
+        return;
+      }
+
+      if (clientSecret && !stripe) return; // Wait for stripe to load
+
+      setIsProcessing(false);
+    };
+
+    handleOrderProcessing();
+  }, [stripe, location, navigate, toast]);
+
+  if (isProcessing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Finalizing your order...</p>
+        </div>
+      </div>
+    );
   }
+
+  if (!orderNumber) return null;
 
   return (
     <div className="pt-20 md:pt-24 pb-16">
@@ -143,6 +236,14 @@ const OrderConfirmation = () => {
           </motion.div>
         </div>
     </div>
+  );
+};
+
+const OrderConfirmation = () => {
+  return (
+    <Elements stripe={stripePromise}>
+      <OrderConfirmationContent />
+    </Elements>
   );
 };
 

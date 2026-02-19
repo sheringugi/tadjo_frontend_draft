@@ -5,7 +5,7 @@ import { ShoppingBag, Menu, X, Heart, User, LogOut, Package, Bell } from 'lucide
 import { Button } from '@/components/ui/button';
 import { getCartCount, initializeCart } from '@/lib/store';
 import { getWishlistCount, initializeWishlist } from '@/lib/wishlist';
-import { isCustomerAuthenticated, customerLogout } from '@/lib/auth';
+import { isCustomerAuthenticated, customerLogout, customerFetch, getCurrentUser } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 
 const Header = () => {
@@ -13,6 +13,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
@@ -31,23 +32,40 @@ const Header = () => {
     initializeCart();
     initializeWishlist();
     const updateCounts = () => {
+      const authenticated = isCustomerAuthenticated();
       setCartCount(getCartCount());
       setWishlistCount(getWishlistCount());
-      setIsLoggedIn(isCustomerAuthenticated());
+      setIsLoggedIn(authenticated);
       setIsProfileOpen(false);
+
+      if (authenticated) {
+        getCurrentUser().then(user => {
+          customerFetch(`/users/${user.id}/notifications/`).then(res => {
+            if (res.ok) {
+              res.json().then((notifications: any[]) => {
+                const unread = notifications.filter(n => !n.is_read).length;
+                setUnreadNotificationsCount(unread);
+              });
+            }
+          });
+        }).catch(() => {});
+      }
     };
 
     updateCounts();
     window.addEventListener('wishlist-updated', updateCounts);
     window.addEventListener('cart-updated', updateCounts);
+    window.addEventListener('notifications-updated', updateCounts);
 
     return () => {
       window.removeEventListener('wishlist-updated', updateCounts);
       window.removeEventListener('cart-updated', updateCounts);
+      window.removeEventListener('notifications-updated', updateCounts);
     };
   }, [location]);
 
   const navLinks = [
+    { to: '/', label: 'Home' },
     { to: '/products', label: 'Shop' },
     // { to: '/products?category=collars', label: 'Collars' },
     // { to: '/products?category=leashes', label: 'Leashes' },
@@ -69,7 +87,7 @@ const Header = () => {
           </p>
         </div> */}
 
-        <div className="grid grid-cols-3 items-center h-16 md:h-20">
+        <div className="relative flex items-center justify-between h-16 md:h-20">
           {/* Left Section */}
           <div className="flex items-center justify-start">
             {/* Mobile Menu Button */}
@@ -84,7 +102,7 @@ const Header = () => {
 
             {/* Desktop Navigation - Left */}
             <nav className="hidden md:flex items-center gap-8">
-              {navLinks.slice(0, 3).map((link) => (
+              {navLinks.map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
@@ -99,7 +117,7 @@ const Header = () => {
           </div>
 
           {/* Center Section - Logo */}
-          <div className="flex items-center justify-center">
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <Link to="/">
               <h1 className="text-2xl md:text-3xl font-display font-medium tracking-wide text-foreground">
                 TAJDO
@@ -108,22 +126,7 @@ const Header = () => {
           </div>
 
           {/* Right Section */}
-          <div className="flex items-center justify-end gap-4 md:gap-8">
-            {/* Desktop Navigation - Right */}
-            <nav className="hidden md:flex items-center gap-8">
-              {navLinks.slice(3).map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className={`text-xs tracking-luxury uppercase font-medium transition-colors hover:text-foreground ${
-                    location.pathname === link.to ? 'text-foreground' : 'text-muted-foreground'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-
+          <div className="flex items-center justify-end">
             {/* Actions */}
             <div className="flex items-center gap-1">
               <div className="relative">
@@ -160,7 +163,12 @@ const Header = () => {
                           Orders
                         </Link>
                         <Link to="/account" className="flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-secondary transition-colors">
-                          <Bell className="w-4 h-4 text-muted-foreground" />
+                          <div className="relative">
+                            <Bell className="w-4 h-4 text-muted-foreground" />
+                            {unreadNotificationsCount > 0 && (
+                              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500" />
+                            )}
+                          </div>
                           Notifications
                         </Link>
                         <div className="h-px bg-border my-1" />

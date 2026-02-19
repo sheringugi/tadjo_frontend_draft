@@ -34,8 +34,8 @@ const Cart = () => {
   };
 
   const subtotal = getCartTotal();
-  const shipping = subtotal > 150 ? 0 : 15;
-  const total = subtotal + shipping;
+  // const shipping = subtotal > 150 ? 0 : 15;
+  const total = subtotal; // Free shipping for simplicity
 
   if (cartItems.length === 0) {
     return (
@@ -201,10 +201,10 @@ const Cart = () => {
 
                 <div className="space-y-4 mb-8">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="text-muted-foreground">Total</span>
                     <span className="font-medium">CHF {subtotal.toFixed(0)}</span>
                   </div>
-                  <div className="flex justify-between text-sm">
+                  {/* <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Shipping</span>
                     <span className="font-medium">
                       {shipping === 0 ? 'Complimentary' : `CHF ${shipping.toFixed(0)}`}
@@ -214,7 +214,7 @@ const Cart = () => {
                     <p className="text-xs text-muted-foreground">
                       Add CHF {(150 - subtotal).toFixed(0)} more for complimentary shipping
                     </p>
-                  )}
+                  )} */}
                 </div>
 
                 <div className="border-t border-border pt-6 mb-8">

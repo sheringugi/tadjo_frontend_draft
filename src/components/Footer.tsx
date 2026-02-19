@@ -1,9 +1,32 @@
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Mail } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 const Footer = () => {
+  const { pathname, search } = useLocation();
+  const [categories, setCategories] = useState<{id: string, name: string}[]>([]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname, search]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
+        const res = await fetch(`${apiUrl}/categories/`);
+        if (res.ok) {
+          setCategories(await res.json());
+        }
+      } catch (e) {
+        console.error('Failed to fetch categories for footer', e);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   return (
     <footer className="bg-foreground text-background">
       {/* Newsletter Section */}
@@ -44,10 +67,15 @@ const Footer = () => {
           <div>
             <h4 className="text-xs tracking-luxury uppercase mb-6">Shop</h4>
             <ul className="space-y-3">
-              {['All Products', 'Collars', 'Leashes', 'Beds', 'Accessories'].map((item) => (
-                <li key={item}>
-                  <Link to="/products" className="text-sm text-background/60 hover:text-background transition-colors">
-                    {item}
+              <li>
+                <Link to="/products" className="text-sm text-background/60 hover:text-background transition-colors">
+                  All Products
+                </Link>
+              </li>
+              {categories.map((cat) => (
+                <li key={cat.id}>
+                  <Link to={`/products?category=${cat.id}`} className="text-sm text-background/60 hover:text-background transition-colors">
+                    {cat.name}
                   </Link>
                 </li>
               ))}

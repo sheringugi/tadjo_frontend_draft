@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Package, LogOut, MapPin, Edit2, Save, X, Trash2 } from 'lucide-react';
+import { User, Package, LogOut, MapPin, Edit2, Save, X, Trash2, Bell, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,10 +34,20 @@ interface Address {
   is_default: boolean;
 }
 
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+  type: string;
+}
+
 const Account = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     full_name: '',
@@ -69,6 +79,12 @@ const Account = () => {
         if (addressesRes.ok) {
           const addressesData = await addressesRes.json();
           setAddresses(addressesData);
+        }
+
+        const notificationsRes = await customerFetch(`/users/${userData.id}/notifications/`);
+        if (notificationsRes.ok) {
+          const notificationsData = await notificationsRes.json();
+          setNotifications(notificationsData);
         }
       } catch (error) {
         console.error('Failed to load account data:', error);
@@ -121,6 +137,20 @@ const Account = () => {
     }
   };
 
+  const handleMarkAsRead = async (notificationId: string) => {
+    try {
+      const res = await customerFetch(`/notifications/${notificationId}/read`, { method: 'PUT' });
+      if (res.ok) {
+        setNotifications(prev => prev.map(n => 
+          n.id === notificationId ? { ...n, is_read: true } : n
+        ));
+        window.dispatchEvent(new Event('notifications-updated'));
+      }
+    } catch (error) {
+      console.error("Failed to mark notification as read", error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="pt-32 pb-24 container mx-auto text-center">
@@ -158,6 +188,12 @@ const Account = () => {
               Order History
             </TabsTrigger>
             <TabsTrigger
+              value="notifications"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent px-0 pb-3 text-sm tracking-wide uppercase"
+            >
+              Notifications
+            </TabsTrigger>
+            <TabsTrigger
               value="profile"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent px-0 pb-3 text-sm tracking-wide uppercase"
             >
@@ -181,8 +217,13 @@ const Account = () => {
                       <div className="flex items-center gap-3 mb-2">
                         <span className="font-medium text-foreground">{order.order_number}</span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wide ${
-                          order.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                          order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                          // order.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                          // order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                          order.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                          order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                          order.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
+                          order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                          order.status === 'refunded' ? 'bg-orange-100 text-orange-800' :
                           'bg-secondary text-muted-foreground'
                         }`}>
                           {order.status}
@@ -195,6 +236,43 @@ const Account = () => {
                     <div className="flex items-center gap-6">
                       <p className="font-medium">CHF {Number(order.total).toFixed(2)}</p>
                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="notifications">
+            {notifications.length === 0 ? (
+              <div className="text-center py-12 border border-dashed border-border">
+                <Bell className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+                <h3 className="text-lg font-medium mb-2">No notifications</h3>
+                <p className="text-muted-foreground">You're all caught up.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {notifications.map((notification) => (
+                  <div 
+                    key={notification.id} 
+                    className={`border p-6 flex items-start justify-between gap-4 transition-colors ${
+                      notification.is_read ? 'border-border bg-background' : 'border-foreground/20 bg-secondary/10'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className={`font-medium ${notification.is_read ? 'text-muted-foreground' : 'text-foreground'}`}>
+                          {notification.title}
+                        </h4>
+                        {!notification.is_read && <span className="w-2 h-2 rounded-full bg-primary"></span>}
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">{notification.message}</p>
+                      <p className="text-xs text-muted-foreground/60">{new Date(notification.created_at).toLocaleDateString()}</p>
+                    </div>
+                    {!notification.is_read && (
+                      <Button variant="ghost" size="icon" onClick={() => handleMarkAsRead(notification.id)} title="Mark as read">
+                        <Check className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>

@@ -6,6 +6,7 @@ interface Category {
   id: string;
   name: string;
   description: string;
+  image_url?: string;
 }
 
 const Categories = () => {
@@ -63,13 +64,25 @@ const Categories = () => {
               transition={{ delay: index * 0.1, duration: 0.6 }}
             >
               <Link to={`/products?category=${category.id}`}>
-                <div className="group relative overflow-hidden bg-background border border-border p-12 hover:border-foreground transition-colors duration-300 h-full flex flex-col items-center justify-center text-center min-h-[200px]">
-                  <h3 className="text-2xl font-display text-foreground mb-3 group-hover:scale-105 transition-transform duration-300">
+                <div className="group relative overflow-hidden bg-background border border-border h-full flex flex-col items-center justify-center text-center min-h-[300px]">
+                  {category.image_url && (
+                    <>
+                      <img 
+                        src={category.image_url} 
+                        alt={category.name} 
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors duration-300" />
+                    </>
+                  )}
+                  <div className="relative z-10 p-12">
+                    <h3 className={`text-2xl font-display mb-3 transition-transform duration-300 ${category.image_url ? 'text-white' : 'text-foreground'}`}>
                     {category.name}
                   </h3>
-                  <p className="text-sm text-muted-foreground tracking-wide">
+                    <p className={`text-sm tracking-wide ${category.image_url ? 'text-white/90' : 'text-muted-foreground'}`}>
                     {category.description}
                   </p>
+                  </div>
                 </div>
               </Link>
             </motion.div>
