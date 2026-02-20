@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Star } from 'lucide-react';
+import { Star, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { adminFetch } from '@/lib/auth';
+import { useToast } from '@/hooks/use-toast';
 
 interface Review {
   id: string;
   rating: number;
-  comment: string;
+  title?: string;
+  body: string;
   created_at: string;
   user_id: string;
   product_id: string;
@@ -13,6 +16,7 @@ interface Review {
 
 const AdminReviews = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     const loadReviews = async () => {
@@ -21,6 +25,15 @@ const AdminReviews = () => {
     };
     loadReviews();
   }, []);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this review?')) return;
+    const res = await adminFetch(`/reviews/${id}`, { method: 'DELETE' });
+    if (res.ok || res.status === 204) {
+      setReviews(reviews.filter(r => r.id !== id));
+      toast({ title: 'Review deleted' });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -32,8 +45,9 @@ const AdminReviews = () => {
             <tr>
               <th className="p-4">Date</th>
               <th className="p-4">Rating</th>
-              <th className="p-4">Comment</th>
+              <th className="p-4">Review</th>
               <th className="p-4">Product ID</th>
+              <th className="p-4">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -46,11 +60,19 @@ const AdminReviews = () => {
                     <Star className="w-3 h-3 fill-primary text-primary" />
                   </div>
                 </td>
-                <td className="p-4">{review.comment}</td>
+                <td className="p-4">
+                  {review.title && <div className="font-medium text-xs mb-1">{review.title}</div>}
+                  {review.body}
+                </td>
                 <td className="p-4 text-xs font-mono text-muted-foreground">{review.product_id}</td>
+                <td className="p-4">
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(review.id)} className="text-destructive hover:bg-destructive/10">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </td>
               </tr>
             ))}
-            {reviews.length === 0 && <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">No reviews yet.</td></tr>}
+            {reviews.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No reviews yet.</td></tr>}
           </tbody>
         </table>
       </div>

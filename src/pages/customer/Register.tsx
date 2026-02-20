@@ -12,6 +12,7 @@ const Register = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ const Register = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await customerRegister({ email, password, first_name: firstName, last_name: lastName });
+      await customerRegister({ email, password, first_name: firstName, last_name: lastName, phone });
       toast({ title: 'Account created!', description: 'Please sign in.' });
       navigate('/login');
     } catch {
@@ -60,6 +61,11 @@ const Register = () => {
           <div className="space-y-2">
             <Label htmlFor="email" className="text-xs text-muted-foreground">Email</Label>
             <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-none" required />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="text-xs text-muted-foreground">Phone Number</Label>
+            <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className="rounded-none" required />
           </div>
 
           <div className="space-y-2">

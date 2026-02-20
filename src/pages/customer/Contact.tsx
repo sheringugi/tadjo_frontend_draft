@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, MapPin, Clock, Send, MessageSquare } from 'lucide-react';
+import { Mail, MapPin, Clock, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,16 +9,60 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 
 const Contact = () => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [topic, setTopic] = useState('');
+  const [orderId, setOrderId] = useState('');
+  const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast({
+        title: 'Invalid Email',
+        description: 'Please enter a valid email address.',
+        variant: 'destructive',
+      });
+      return; // Stop the submission
+    }
+
     setIsSubmitting(true);
-    await new Promise(r => setTimeout(r, 1500));
-    setIsSubmitting(false);
-    toast({ title: 'Message sent', description: "We'll get back to you within 24 hours." });
-    (e.target as HTMLFormElement).reset();
+    try {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
+      const response = await fetch(`${apiUrl}/contact/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          topic,
+          order_id: orderId,
+          message,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+
+      toast({ title: 'Message sent', description: "We'll get back to you within 24 hours." });
+      setName('');
+      setEmail('');
+      setTopic('');
+      setOrderId('');
+      setMessage('');
+    } catch (error) {
+      toast({ title: 'Error', description: 'Could not send your message. Please try again.', variant: 'destructive' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -58,21 +102,21 @@ const Contact = () => {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name" className="text-xs text-muted-foreground">Full Name</Label>
-                    <Input id="name" className="rounded-none" required />
+                    <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="rounded-none" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-xs text-muted-foreground">Email</Label>
-                    <Input id="email" type="email" className="rounded-none" required />
+                    <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-none" required />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="topic" className="text-xs text-muted-foreground">Topic</Label>
-                  <Select required>
+                  <Select required value={topic} onValueChange={setTopic}>
                     <SelectTrigger className="rounded-none">
                       <SelectValue placeholder="Select a topic" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="rounded-none">
                       <SelectItem value="general">General Inquiry</SelectItem>
                       <SelectItem value="order">Order Question</SelectItem>
                       <SelectItem value="complaint">Complaint</SelectItem>
@@ -84,12 +128,12 @@ const Contact = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="orderId" className="text-xs text-muted-foreground">Order ID (optional)</Label>
-                  <Input id="orderId" placeholder="ORD-XXXXXX" className="rounded-none" />
+                  <Input id="orderId" placeholder="ORD-XXXXXX" value={orderId} onChange={(e) => setOrderId(e.target.value)} className="rounded-none" />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="message" className="text-xs text-muted-foreground">Message</Label>
-                  <Textarea id="message" rows={5} className="rounded-none resize-none" required />
+                  <Textarea id="message" rows={5} value={message} onChange={(e) => setMessage(e.target.value)} className="rounded-none resize-none" required />
                 </div>
 
                 <Button

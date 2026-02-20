@@ -30,6 +30,11 @@ const Products = () => {
   const [sortBy, setSortBy] = useState('featured');
 
   useEffect(() => {
+    const category = searchParams.get('category');
+    setSelectedCategories(category ? [category] : []);
+  }, [searchParams]);
+
+  useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       try {

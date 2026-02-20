@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Minus, Plus, Heart } from 'lucide-react';
+import { ArrowLeft, Minus, Plus, Heart, Star } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,13 +9,17 @@ import { fetchProduct, addToCart, Product } from '@/lib/store';
 import { getSupplierForProduct } from '@/lib/suppliers';
 import { isInWishlist, toggleWishlist } from '@/lib/wishlist';
 import { useToast } from '@/hooks/use-toast';
+import ProductReviews from '@/components/ProductReviews';
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const location = useLocation();
   const [quantity, setQuantity] = useState(1);
   const [product, setProduct] = useState<Product | null>(null);
   const [wishlisted, setWishlisted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [averageRating, setAverageRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -25,6 +29,18 @@ const ProductDetail = () => {
         const data = await fetchProduct(id);
         setProduct(data);
         setWishlisted(isInWishlist(data.id));
+
+        // Fetch reviews to calculate average rating
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001';
+        const reviewsRes = await fetch(`${apiUrl}/products/${id}/reviews/`);
+        if (reviewsRes.ok) {
+          const reviews = await reviewsRes.json();
+          if (reviews.length > 0) {
+            const total = reviews.reduce((acc: number, r: any) => acc + r.rating, 0);
+            setAverageRating(total / reviews.length);
+            setReviewCount(reviews.length);
+          }
+        }
       } catch (error) {
         console.error(error);
       } finally {
@@ -41,6 +57,17 @@ const ProductDetail = () => {
     window.addEventListener('wishlist-updated', checkWishlist);
     return () => window.removeEventListener('wishlist-updated', checkWishlist);
   }, [product]);
+
+  // Handle hash scrolling
+  useEffect(() => {
+    if (!isLoading && location.hash) {
+      const element = document.getElementById(location.hash.replace('#', ''));
+      if (element) {
+        // Small timeout to ensure layout is stable
+        setTimeout(() => element.scrollIntoView({ behavior: 'smooth' }), 100);
+      }
+    }
+  }, [isLoading, location.hash]);
 
   const supplier = product ? getSupplierForProduct(product.id) : undefined;
   // const relatedProducts = products.filter(p => p.id !== id && p.category === product?.category).slice(0, 4);
@@ -142,6 +169,27 @@ const ProductDetail = () => {
                 <h1 className="text-3xl md:text-4xl font-display font-normal text-foreground mb-4">
                   {product.name}
                 </h1>
+
+                {/* Average Rating Display */}
+                <div 
+                  className="flex items-center gap-2 mb-4 cursor-pointer hover:opacity-70 transition-opacity w-fit"
+                  onClick={() => {
+                    document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  <div className="flex gap-0.5">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${i < Math.round(averageRating) ? 'fill-primary text-primary' : 'text-muted-foreground'}`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    {averageRating > 0 ? averageRating.toFixed(1) : 'No ratings'} ({reviewCount} {reviewCount === 1 ? 'review' : 'reviews'})
+                  </span>
+                </div>
+
                 <p className="text-xl text-foreground">
                   CHF {Number(product.price).toFixed(0)}
                 </p>
@@ -269,6 +317,17 @@ const ProductDetail = () => {
               </Tabs>
             </motion.div>
           </div>
+
+          {/* Reviews */}
+          <motion.div
+            id="reviews"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-24 pt-24 border-t border-border"
+          >
+            <ProductReviews productId={product.id} />
+          </motion.div>
 
           {/* Related Products */}
           {/* {relatedProducts.length > 0 && (

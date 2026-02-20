@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-// import { Plus, Heart } from 'lucide-react';
-import {Heart} from 'lucide-react';
+import { Heart, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Product, addToCart } from '@/lib/store';
 import { isInWishlist, toggleWishlist } from '@/lib/wishlist';
@@ -17,6 +16,7 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [wishlisted, setWishlisted] = useState(isInWishlist(product.id));
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const badgeLabel = product.badge === 'bestseller' ? 'Best Seller' : 
                      product.badge === 'new' ? 'New' : 
@@ -31,6 +31,12 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
       title: "Added to bag",
       description: `${product.name} has been added to your bag.`,
     });
+  };
+
+  const handleRatingClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/product/${product.id}#reviews`);
   };
 
   return (
@@ -101,6 +107,22 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             <h3 className="text-base font-display text-foreground group-hover:text-muted-foreground transition-colors">
               {product.name}
             </h3>
+            {product.rating > 0 && (
+              <div 
+                className="flex items-center gap-1 w-fit cursor-pointer hover:opacity-70 transition-opacity"
+                onClick={handleRatingClick}
+              >
+                <div className="flex gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-3 h-3 ${i < Math.round(product.rating) ? 'fill-primary text-primary' : 'text-muted-foreground/30'}`}
+                    />
+                  ))}
+                </div>
+                <span className="text-[10px] text-muted-foreground">({product.review_count})</span>
+              </div>
+            )}
             <p className="text-sm text-foreground">
               CHF {Number(product.price).toFixed(0)}
             </p>

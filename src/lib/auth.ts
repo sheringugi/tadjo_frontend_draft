@@ -12,6 +12,9 @@ export const setCustomerToken = (token: string) =>
 export const clearCustomerToken = () => {
   localStorage.removeItem('access_token');
   localStorage.removeItem('user_role');
+  window.dispatchEvent(new Event('cart-updated'));
+  window.dispatchEvent(new Event('wishlist-updated'));
+  window.dispatchEvent(new Event('notifications-updated'));
 };
 
 export const isCustomerAuthenticated = (): boolean =>
@@ -35,18 +38,28 @@ export const isAdminAuthenticated = (): boolean =>
 // API helpers
 export const customerFetch = async (url: string, options: RequestInit = {}) => {
   const token = getCustomerToken();
-  return fetch(`${API_BASE}${url}`, {
+  const response = await fetch(`${API_BASE}${url}`, {
     ...options,
     headers: {
       ...options.headers,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
+
+  if (response.status === 401) {
+    if (window.location.pathname !== '/login') {
+      customerLogout();
+      window.location.href = '/login?session_expired=true';
+    }
+    throw new Error('Session expired');
+  }
+
+  return response;
 };
 
 export const adminFetch = async (url: string, options: RequestInit = {}) => {
   const token = getAdminToken();
-  return fetch(`${API_BASE}${url}`, {
+  const response = await fetch(`${API_BASE}${url}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
@@ -54,6 +67,16 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
+
+  if (response.status === 401) {
+    if (window.location.pathname !== '/admin/login') {
+      adminLogout();
+      window.location.href = '/admin/login?session_expired=true';
+    }
+    throw new Error('Admin session expired');
+  }
+
+  return response;
 };
 
 // Customer login
@@ -81,6 +104,7 @@ export const customerRegister = async (userData: {
   password: string;
   first_name: string;
   last_name: string;
+  phone: string;
 }) => {
   const res = await fetch(`${API_BASE}/users/`, {
     method: 'POST',
@@ -89,7 +113,7 @@ export const customerRegister = async (userData: {
       email: userData.email,
       password: userData.password,
       full_name: `${userData.first_name} ${userData.last_name}`,
-      phone: "",
+      phone: userData.phone,
       locale: "en",
     }),
   });

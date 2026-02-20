@@ -1,6 +1,5 @@
 // TAJDO - Luxury Pet Accessories Store
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+import { customerFetch } from './auth';
 
 export interface Product {
   id: string;
@@ -42,7 +41,7 @@ export const categories: Category[] = [
 ];
 
 export const fetchProducts = async (): Promise<Product[]> => {
-  const res = await fetch(`${API_BASE}/products/`);
+  const res = await customerFetch('/products/');
   if (!res.ok) throw new Error('Failed to fetch products');
   const data = await res.json();
   return data.map((p: any) => ({
@@ -54,7 +53,7 @@ export const fetchProducts = async (): Promise<Product[]> => {
 };
 
 export const fetchProduct = async (id: string): Promise<Product> => {
-  const res = await fetch(`${API_BASE}/products/${id}`);
+  const res = await customerFetch(`/products/${id}`);
   if (!res.ok) throw new Error('Failed to fetch product');
   const data = await res.json();
   return {
@@ -85,15 +84,11 @@ export const initializeCart = async () => {
   if (token) {
     try {
       // Get user ID first
-      const userRes = await fetch(`${API_BASE}/users/me/`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const userRes = await customerFetch('/users/me/');
       
       if (userRes.ok) {
         const user = await userRes.json();
-        const cartRes = await fetch(`${API_BASE}/users/${user.id}/cart/items/`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const cartRes = await customerFetch(`/users/${user.id}/cart/items/`);
 
         if (cartRes.ok) {
           const backendItems = await cartRes.json();
@@ -137,11 +132,10 @@ export const addToCart = async (product: Product, quantity: number = 1) => {
 
   if (token) {
     try {
-      await fetch(`${API_BASE}/cart/items/`, {
+      await customerFetch('/cart/items/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           product_id: product.id,
@@ -164,9 +158,8 @@ export const removeFromCart = async (productId: string) => {
 
   if (token) {
     try {
-      await fetch(`${API_BASE}/cart/items/${productId}`, {
+      await customerFetch(`/cart/items/${productId}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
       });
     } catch (e) {
       console.error('Failed to remove from backend cart', e);
@@ -189,11 +182,10 @@ export const updateCartQuantity = async (productId: string, quantity: number) =>
 
     if (token) {
       try {
-        await fetch(`${API_BASE}/cart/items/${productId}`, {
+        await customerFetch(`/cart/items/${productId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({ quantity: newQuantity })
         });

@@ -1,6 +1,5 @@
 // TAJDO - Wishlist (localStorage-backed)
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+import { customerFetch } from './auth';
 const STORAGE_KEY = 'tajdo_wishlist';
 
 const loadWishlist = (): string[] => {
@@ -24,15 +23,11 @@ export const initializeWishlist = async () => {
   const token = localStorage.getItem('access_token');
   if (token) {
     try {
-      const userRes = await fetch(`${API_BASE}/users/me/`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const userRes = await customerFetch('/users/me/');
       
       if (userRes.ok) {
         const user = await userRes.json();
-        const wishlistRes = await fetch(`${API_BASE}/users/${user.id}/wishlist/`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const wishlistRes = await customerFetch(`/users/${user.id}/wishlist/`);
 
         if (wishlistRes.ok) {
           const products = await wishlistRes.json();
@@ -61,9 +56,9 @@ export const toggleWishlist = async (productId: string): Promise<boolean> => {
 
     if (token) {
       try {
-        await fetch(`${API_BASE}/wishlists/`, {
+        await customerFetch('/wishlists/', {
           method: 'DELETE',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ product_id: productId })
         });
       } catch (e) { console.error(e); }
@@ -75,9 +70,9 @@ export const toggleWishlist = async (productId: string): Promise<boolean> => {
 
     if (token) {
       try {
-        await fetch(`${API_BASE}/wishlists/`, {
+        await customerFetch('/wishlists/', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ product_id: productId })
         });
       } catch (e) { console.error(e); }
@@ -95,9 +90,9 @@ export const removeFromWishlist = async (productId: string) => {
 
   if (token) {
     try {
-      await fetch(`${API_BASE}/wishlists/`, {
+      await customerFetch('/wishlists/', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ product_id: productId })
       });
     } catch (e) { console.error(e); }
