@@ -40,6 +40,7 @@ const AdminProductForm = () => {
   // New item states
   const [newSpec, setNewSpec] = useState('');
   const [newImageUrl, setNewImageUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -140,6 +141,36 @@ const AdminProductForm = () => {
       }
     } catch (e) {
       toast({ title: "Error", description: "Failed to add image", variant: "destructive" });
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploading(true);
+    try {
+      const res = await adminFetch('/upload/image', {
+        method: 'POST',
+        body: formData,
+      }); // adminFetch handles headers, but for FormData, browser sets Content-Type automatically with boundary.
+          // If adminFetch sets Content-Type: application/json by default, you might need to unset it or use fetch directly with auth headers.
+          // Assuming adminFetch is smart enough or you might need to adjust it.
+          // If adminFetch forces JSON, use standard fetch with token.
+      
+      if (!res.ok) throw new Error('Upload failed');
+      
+      const data = await res.json();
+      setNewImageUrl(data.url);
+      toast({ title: "Image uploaded successfully" });
+    } catch (error) {
+      console.error(error);
+      toast({ title: "Upload failed", description: "Could not upload image", variant: "destructive" });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -269,6 +300,12 @@ const AdminProductForm = () => {
 
           <div className="bg-card border border-border p-6 max-w-2xl">
             <h3 className="font-medium mb-4">Add New Image</h3>
+            <div className="mb-4">
+                <Label htmlFor="image-upload" className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2">
+                    {uploading ? 'Uploading...' : 'Upload Image'}
+                </Label>
+                <Input id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
+            </div>
             <div className="flex gap-2">
               <Input 
                 placeholder="Image URL (https://...)" 
