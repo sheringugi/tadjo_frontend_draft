@@ -52,11 +52,11 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
           onMouseLeave={() => setIsHovered(false)}
         >
           {/* Image Container */}
-          <div className="relative aspect-[3/4] overflow-hidden bg-secondary mb-4">
+          <div className="relative aspect-square overflow-hidden bg-secondary mb-4">
             <img
               src={product.image_url}
               alt={product.name}
-              className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             
             {/* Badge */}
