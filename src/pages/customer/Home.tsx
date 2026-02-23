@@ -105,9 +105,8 @@ const Home = () => {
                   deserves to be celebrated with objects of enduring beauty and quality.
                 </p>
                 <p>
-                  Each piece in our collection is designed in our Swiss studio and 
-                  crafted by skilled artisans using the finest materials—Italian leather, 
-                  organic cotton, and solid brass hardware.
+                  Each piece in our collection is designed and 
+                  crafted by skilled artisans using the finest materials.
                 </p>
                 <p>
                   The result is a quiet luxury: timeless, understated, and made to last 

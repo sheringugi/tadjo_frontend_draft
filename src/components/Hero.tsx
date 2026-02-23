@@ -35,8 +35,8 @@ const Hero = () => {
             </h1>
             
             <p className="text-base text-muted-foreground max-w-md mb-10 leading-relaxed">
-              Handcrafted pet accessories in the finest materials. 
-              Designed in Switzerland for discerning pet owners who appreciate 
+              Pet accessories in the finest materials. 
+              Designed for discerning pet owners who appreciate 
               quiet luxury and enduring quality.
             </p>
 
@@ -71,10 +71,10 @@ const Hero = () => {
             className="flex flex-wrap gap-8 mt-16 text-xs text-muted-foreground tracking-wide uppercase"
           >
             <span>Free Shipping</span>
-            <span>•</span>
+            {/* <span>•</span>
             <span>Handcrafted</span>
             <span>•</span>
-            <span>Swiss Design</span>
+            <span>Swiss Design</span> */}
           </motion.div>
         </div>
       </div>
