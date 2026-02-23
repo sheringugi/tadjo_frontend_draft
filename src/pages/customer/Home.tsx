@@ -60,6 +60,7 @@ const Home = () => {
       
       {/* Brand Story Section */}
       <section className="py-24 md:py-32">
+        <h2 className="text-3xl md:text-4xl font-display text-foreground">Best Sellers</h2>
         <div className="container mx-auto">
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
             <motion.div
