@@ -164,13 +164,27 @@ const AdminProductForm = () => {
       if (!res.ok) throw new Error('Upload failed');
       
       const data = await res.json();
-      setNewImageUrl(data.url);
-      toast({ title: "Image uploaded successfully" });
+      
+      // Automatically save to DB
+      const saveRes = await adminFetch(`/products/${id}/images/`, {
+        method: 'POST',
+        body: JSON.stringify({ url: data.url, alt_text: formData.name, sort_order: images.length })
+      });
+
+      if (saveRes.ok) {
+        const added = await saveRes.json();
+        setImages(prev => [...prev, added]);
+        toast({ title: "Image uploaded and saved" });
+      } else {
+        setNewImageUrl(data.url); // Fallback
+        throw new Error('Failed to save image to database');
+      }
     } catch (error) {
       console.error(error);
       toast({ title: "Upload failed", description: "Could not upload image", variant: "destructive" });
     } finally {
       setUploading(false);
+      e.target.value = '';
     }
   };
 
