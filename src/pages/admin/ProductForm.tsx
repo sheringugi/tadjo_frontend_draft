@@ -148,15 +148,15 @@ const AdminProductForm = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
+    const uploadFormData = new FormData();
+    uploadFormData.append('file', file);
 
     setUploading(true);
     try {
-      const res = await adminFetch('/upload/image', {
+      const res = await adminFetch('/upload/image', { // adminFetch handles headers, but for FormData, browser sets Content-Type automatically with boundary.
         method: 'POST',
-        body: formData,
-      }); // adminFetch handles headers, but for FormData, browser sets Content-Type automatically with boundary.
+        body: uploadFormData,
+      }); 
           // If adminFetch sets Content-Type: application/json by default, you might need to unset it or use fetch directly with auth headers.
           // Assuming adminFetch is smart enough or you might need to adjust it.
           // If adminFetch forces JSON, use standard fetch with token.
