@@ -40,6 +40,7 @@ const Home = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-12"
+            
           >
             <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">Most Loved</p>
             <h2 className="text-3xl md:text-4xl font-display text-foreground">Best Sellers</h2>
@@ -60,7 +61,6 @@ const Home = () => {
       
       {/* Brand Story Section */}
       <section className="py-24 md:py-32">
-        <h2 className="text-3xl md:text-4xl font-display text-foreground">Best Sellers</h2>
         <div className="container mx-auto">
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
             <motion.div
@@ -68,7 +68,11 @@ const Home = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
+
+              
             >
+              <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">Our Motivation</p>
+            <h2 className="text-3xl md:text-4xl font-display text-foreground">Our Story</h2>
               <div className="aspect-[4/5] overflow-hidden">
                 <img
                   src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&h=1000&fit=crop"
