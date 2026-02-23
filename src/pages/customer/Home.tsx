@@ -62,17 +62,28 @@ const Home = () => {
       {/* Brand Story Section */}
       <section className="py-24 md:py-32">
         <div className="container mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">
+              Our Philosophy
+            </p>
+            <h2 className="text-4xl md:text-5xl font-display font-normal text-foreground mb-4">
+              Luxury with Purpose
+            </h2>
+          </motion.div>
+
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-
-              
             >
-              <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">Our Motivation</p>
-            <h2 className="text-3xl md:text-4xl font-display text-foreground">Our Story</h2>
               <div className="aspect-[4/5] overflow-hidden">
                 <img
                   src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800&h=1000&fit=crop"
@@ -88,14 +99,6 @@ const Home = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
-              <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">
-                Our Philosophy
-              </p>
-              <h2 className="text-4xl md:text-5xl font-display font-normal text-foreground mb-6 leading-tight">
-                Luxury with
-                <br />
-                <span className="italic">Purpose</span>
-              </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
                 <p>
                   At TAJDO, we believe that the bond between you and your companion 
