@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center">
+    <section className="relative min-h-screen flex items-center pt-24 md:pt-32">
       {/* Background Image */}
       <div className="absolute inset-0">
         <img
