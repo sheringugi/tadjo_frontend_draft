@@ -24,14 +24,14 @@ const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           >
-            <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-6">
+            <p className="text-5xl md:text-6xl lg:text-5xl font-display font-normal text-muted-foreground leading-[1.1] mb-6">
               Luxury with Purpose
             </p>
 
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-normal text-foreground leading-[1.1] mb-6">
               Timeless Elegance
               <br />
-              <span className="italic">for Your Companion</span>
+              <span className="text-5xl md:text-6xl lg:text-7xl font-display font-normal text-foreground leading-[1.1] mb-6">for Your Companion</span>
             </h1>
             
             <p className="text-base text-muted-foreground max-w-md mb-10 leading-relaxed">

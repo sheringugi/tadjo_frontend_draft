@@ -66,11 +66,11 @@ const Contact = () => {
   };
 
   return (
-    <div className="pt-20 md:pt-24 pb-24">
+    <div className="pt-24 md:pt-32 pb-24">
       <div className="container mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
-            <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">Get in Touch</p>
-            <h1 className="text-4xl md:text-5xl font-display text-foreground mb-4">Contact Us</h1>
+            {/* <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">Get in Touch</p> */}
+            <h1 className="text-4xl md:text-5xl font-display text-muted-foreground mb-4">Contact Us</h1>
             <p className="text-muted-foreground max-w-xl mx-auto">
               Questions, concerns, or feedback — we'd love to hear from you.
             </p>
@@ -80,8 +80,8 @@ const Contact = () => {
             {/* Contact info */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-8">
               {[
-                { icon: Mail, label: 'Email', value: 'hello@tajdo.ch' },
-                { icon: MapPin, label: 'Location', value: 'Zürich, Switzerland' },
+                { icon: Mail, label: 'Email', value: 'Info@tajdo.ch' },
+                { icon: MapPin, label: 'Location', value: 'Luzern, Switzerland' },
                 { icon: Clock, label: 'Response Time', value: 'Within 24 hours' },
               ].map(item => (
                 <div key={item.label} className="flex gap-4">

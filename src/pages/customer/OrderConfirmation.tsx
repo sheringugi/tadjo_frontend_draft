@@ -114,7 +114,7 @@ const OrderConfirmationContent = () => {
   if (!orderNumber) return null;
 
   return (
-    <div className="pt-20 md:pt-24 pb-16">
+    <div className="pt-24 md:pt-32 pb-16">
         <div className="container mx-auto max-w-2xl">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}

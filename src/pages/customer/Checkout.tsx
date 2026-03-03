@@ -260,7 +260,7 @@ const CheckoutForm = () => {
   };
 
   return (
-    <div className="pt-20 md:pt-24 pb-24">
+    <div className="pt-24 md:pt-32 pb-24">
       <div className="container mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

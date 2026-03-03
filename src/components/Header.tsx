@@ -81,15 +81,15 @@ const Header = () => {
     >
       <div className="container mx-auto">
         {/* Top bar - subtle announcement */}
-        {/* <div className="hidden md:flex items-center justify-center py-2 border-b border-border/50">
-          <p className="text-xs tracking-luxury text-muted-foreground uppercase">
-            Complimentary shipping on orders over CHF 150
+        <div className="hidden md:flex items-center justify-center py-2 border-b border-border/50">
+          <p className="text-l tracking-luxury text-foreground uppercase">
+            10% OF EVERY PURCHASE GOES TO HELPING THE STREET DOGS OF ZANZIBAR
           </p>
-        </div> */}
+        </div>
 
-        <div className="relative flex items-center justify-between h-16 md:h-20">
+        <div className="flex items-center h-16 md:h-20">
           {/* Left Section */}
-          <div className="flex items-center justify-start">
+          <div className="flex-1 flex items-center justify-start">
             {/* Mobile Menu Button */}
             <Button
               variant="ghost"
@@ -117,16 +117,16 @@ const Header = () => {
           </div>
 
           {/* Center Section - Logo */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div className="flex-shrink-0">
             <Link to="/">
-              <h1 className="text-2xl md:text-3xl font-display font-medium tracking-wide text-foreground">
+              <h1 className="text-3xl md:text-6xl font-display font-medium tracking-wide text-foreground">
                 TAJDO
               </h1>
             </Link>
           </div>
 
           {/* Right Section */}
-          <div className="flex items-center justify-end">
+          <div className="flex-1 flex items-center justify-end">
             {/* Actions */}
             <div className="flex items-center gap-1">
               <div className="relative">

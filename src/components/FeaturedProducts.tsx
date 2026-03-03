@@ -34,9 +34,9 @@ const FeaturedProducts = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">
+          {/* <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">
             Curated Selection
-          </p>
+          </p> */}
           <h2 className="text-4xl md:text-5xl font-display font-normal text-foreground mb-4">
             Featured Pieces
           </h2>

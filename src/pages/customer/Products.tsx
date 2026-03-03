@@ -165,7 +165,7 @@ const Products = () => {
   );
 
   return (
-    <div className="pt-20 md:pt-24 pb-24">
+    <div className="pt-24 md:pt-32 pb-24">
         <div className="container mx-auto">
           {/* Header */}
           <motion.div
@@ -173,10 +173,10 @@ const Products = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-12"
           >
-            <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-3">
+            {/* <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-3">
               The Collection
-            </p>
-            <h1 className="text-4xl md:text-5xl font-display font-normal text-foreground mb-4">
+            </p> */}
+            <h1 className="text-4xl md:text-5xl font-display font-normal text-muted-foreground mb-4">
               All Products
             </h1>
             <p className="text-muted-foreground">
