@@ -83,7 +83,7 @@ const Header = () => {
         {/* Top bar - subtle announcement */}
         <div className="hidden md:flex items-center justify-center py-2 border-b border-border/50">
           <p className="text-l tracking-luxury text-foreground uppercase">
-            10% OF EVERY PURCHASE GOES TO HELPING THE STREET DOGS OF ZANZIBAR
+            10% OF EVERY PURCHASE SUPPORTS TAJDO NGO IN HELPING  AND RESCUING THE STREET DOGS OF ZANZIBAR
           </p>
         </div>
 

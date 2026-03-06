@@ -22,7 +22,7 @@ const AboutUs = () => {
                
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                Every TAJDO purchase supports the rescue and rehabilitation of street dogs in Zanzibar.
+                Every purchase supports TAJDO NGO in the rescue and rehabilitation of street dogs in Zanzibar.
               </p>
             </motion.div>
 
@@ -53,14 +53,21 @@ const AboutUs = () => {
                 <h2 className="text-3xl md:text-4xl font-display text-foreground mb-6">The Story of Tajana & Dollar</h2>
                 <div className="space-y-4 text-muted-foreground leading-relaxed">
                   <p>
-                    TAJDO is a name born from a bond: a combination of <strong>Tajana</strong> and her dog, <strong>Dollar</strong>. An unbeatable team from Switzerland to Zanzibar, their story is the heart of our brand.
+                    TAJDO is a name born from a bond — a combination of <strong>Tajana</strong> and her dog, <strong>Dollar</strong>. An inseparable team from Switzerland to Zanzibar, their story is the heart of our brand.
+                  </p>	
+                  <p>
+                    Raised in Switzerland, Tajana’s deep love for animals led her to an animal shelter in Italy, where she met Dollar. From that moment on, they became inseparable companions. A journey to Zanzibar changed the course of their lives. Feeling an immediate sense of belonging on the island, and deeply moved by the plight of street dogs, Tajana decided to dedicate her life to helping them.
                   </p>
                   <p>
-                    Raised in Switzerland, Tajana's love for animals led her to an animal shelter in Italy, where she found Dollar. For seven years, they were inseparable. A journey to Zanzibar changed everything. Feeling at home and moved by the plight of street dogs, Tajana dedicated her life to their cause.
+                    <strong>TAJDO NGO</strong> was born from this love — a commitment to protect and care for the street dogs of Zanzibar. It represents the belief that the love we share with our own dogs should extend to those still waiting for safety, care, and a home. Through feeding programs, rescues, sterilization efforts, and adoption support, TAJDO NGO continues to give these dogs a second chance.
                   </p>
                   <p>
-                    TAJDO was born from this love—a desire to take on responsibility and make a meaningful difference. It's a promise to celebrate the connection we share with our companions by extending a hand to those still waiting for a home.
+                    After two years of running the organization, the team decided to expand their impact. Today, <strong>10% of every purchase</strong> made on TAJDO goes toward providing food, care, shelter, medication, sterilization, protection, and adoption support for street dogs across Zanzibar.
                   </p>
+                  <p>
+			<strong> Every purchase is a small act of love. Thank you for being part of our story.</strong>
+                  </p>
+
                 </div>
                 <a
                   href="https://tajdo.ch"
