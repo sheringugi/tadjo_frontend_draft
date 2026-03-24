@@ -275,7 +275,7 @@ const CheckoutForm = () => {
   // ============================================
   if (twintOrder) {
     // const twintUrl = `https://go.twint.ch/1/e/tw?tw=acq.m6hRmNXzRFif8Usa0nkjxP68X0niErIPXSrcY1XoYUkayz9rr87yHxiIxAxS-6C2&amount=${twintOrder.total.toFixed(2)}&trxInfo=${twintOrder.order_number}`;
-    const twintUrl = `https://go.twint.ch/1/e/tw?tw=acq.CEeb5AsGTJC-XG4DVUh3ZbQUFwvQJblSBrQaeQCLPTswCKQm7PSbLYeECDSAU3Id&amount=${twintOrder.total.toFixed(2)}&trxInfo=${twintOrder.order_number}`;
+    const twintUrl = `https://go.twint.ch/1/e/tw?tw=acq.CEeb5AsGTJC-XG4DVUh3ZbQUFwvQJblSBrQaeQCLPTswCKQm7PSbLYeECDSAU3Id&amount=${twintOrder.total.toFixed(2)}&trxInfo=Order%20${twintOrder.order_number}`;
 
     return (
       <div className="pt-24 md:pt-32 pb-24 container mx-auto text-center max-w-lg">
