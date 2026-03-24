@@ -7,7 +7,7 @@ const LanguageSwitcher = () => {
   const languages = [
     { code: 'en', label: 'EN' },
     { code: 'de', label: 'DE' },
-    { code: 'nl', label: 'NL' },
+    
   ];
 
   return (
