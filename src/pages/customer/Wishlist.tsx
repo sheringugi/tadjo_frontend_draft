@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/button';
 import { addToCart, Product, fetchProducts } from '@/lib/store';
 import { getWishlist, removeFromWishlist } from '@/lib/wishlist';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from 'react-i18next';
 
 const Wishlist = () => {
   const [wishlistIds, setWishlistIds] = useState(getWishlist());
   const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]); // Placeholder
+  const { t } = useTranslation('common');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -27,7 +29,7 @@ const Wishlist = () => {
     await removeFromWishlist(productId);
     setWishlistIds(getWishlist());
     window.dispatchEvent(new Event('wishlist-updated'));
-    toast({ title: 'Removed from wishlist' });
+    toast({ title: t('wishlist.toastRemoved') });
   };
 
   const handleMoveToCart = async (productId: string) => {
@@ -38,7 +40,7 @@ const Wishlist = () => {
       await removeFromWishlist(productId);
       setWishlistIds(getWishlist());
       window.dispatchEvent(new Event('wishlist-updated'));
-      toast({ title: 'Moved to bag', description: `${product.name} added to your bag.` });
+      toast({ title: t('wishlist.toastMovedToBagTitle'), description: t('wishlist.toastMovedToBagDesc', { productName: product.name }) });
     }
   };
 
@@ -51,20 +53,20 @@ const Wishlist = () => {
               className="inline-flex items-center gap-2 text-xs tracking-luxury uppercase text-muted-foreground hover:text-foreground transition-colors mb-6"
             >
               <ArrowLeft className="w-4 h-4" />
-              Continue Shopping
+              {t('wishlist.breadcrumb')}
             </Link>
-            <h1 className="text-4xl font-display text-foreground">Wishlist</h1>
-            <p className="text-muted-foreground mt-2">{wishlistProducts.length} item{wishlistProducts.length !== 1 ? 's' : ''} saved</p>
+            <h1 className="text-4xl font-display text-foreground">{t('wishlist.heading')}</h1>
+            <p className="text-muted-foreground mt-2">{t('wishlist.itemsSaved', { count: wishlistProducts.length })}</p>
           </motion.div>
 
           {wishlistProducts.length === 0 ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24">
               <Heart className="w-12 h-12 mx-auto mb-6 text-muted-foreground/40" />
-              <h2 className="text-2xl font-display text-foreground mb-3">Your wishlist is empty</h2>
-              <p className="text-muted-foreground mb-8">Save items you love to revisit them later.</p>
+              <h2 className="text-2xl font-display text-foreground mb-3">{t('wishlist.emptyHeading')}</h2>
+              <p className="text-muted-foreground mb-8">{t('wishlist.emptyDescription')}</p>
               <Link to="/products">
                 <Button className="bg-foreground text-background hover:bg-foreground/90 rounded-none text-xs tracking-luxury uppercase">
-                  Browse Products
+                  {t('wishlist.buttonBrowse')}
                 </Button>
               </Link>
             </motion.div>
@@ -98,7 +100,7 @@ const Wishlist = () => {
                         className="flex-1 bg-foreground text-background hover:bg-foreground/90 rounded-none text-xs tracking-luxury uppercase h-9"
                       >
                         <ShoppingBag className="w-3 h-3 mr-2" />
-                        Add to Bag
+                        {t('wishlist.buttonAddToBag')}
                       </Button>
                       <Button
                         variant="outline"

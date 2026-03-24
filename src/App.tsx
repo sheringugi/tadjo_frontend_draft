@@ -31,7 +31,7 @@ import OrderTracking from './pages/customer/OrderTracking';
 
 function App() {
   return (
-    <BrowserRouter>
+    // <BrowserRouter>
       <Routes>
         {/* Customer Routes */}
         <Route element={<CustomerLayout />}>
@@ -78,7 +78,7 @@ function App() {
           </Route>
         </Route>
       </Routes>
-    </BrowserRouter>
+    // </BrowserRouter>
   );
 }
 

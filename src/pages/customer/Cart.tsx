@@ -11,10 +11,12 @@ import {
   getCartTotal,
   CartItem,
 } from '@/lib/store';
+import { useTranslation } from 'react-i18next';
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [promoCode, setPromoCode] = useState('');
+  const { t } = useTranslation('common');
 
   useEffect(() => {
     const updateCart = () => setCartItems(getCart());
@@ -50,14 +52,14 @@ const Cart = () => {
                 <ShoppingBag className="w-8 h-8 text-muted-foreground" />
               </div>
               <h1 className="text-3xl font-display text-foreground mb-3">
-                Your Bag is Empty
+                {t('cart.emptyHeading')}
               </h1>
               <p className="text-muted-foreground mb-8">
-                Discover our curated collection of luxury pet accessories.
+                {t('cart.emptyDescription')}
               </p>
               <Link to="/products">
                 <Button className="bg-foreground text-background hover:bg-foreground/90 rounded-none px-10 h-12 text-xs tracking-luxury uppercase">
-                  Shop Now
+                  {t('cart.buttonShopNow')}
                   <ArrowRight className="ml-3 w-4 h-4" />
                 </Button>
               </Link>
@@ -80,13 +82,13 @@ const Cart = () => {
               className="inline-flex items-center gap-2 text-xs tracking-luxury uppercase text-muted-foreground hover:text-foreground transition-colors mb-6"
             >
               <ArrowLeft className="w-4 h-4" />
-              Continue Shopping
+              {t('cart.breadcrumb')}
             </Link>
             <h1 className="text-4xl font-display text-foreground">
-              Shopping Bag
+              {t('cart.heading')}
             </h1>
             <p className="text-muted-foreground mt-2">
-              {cartItems.reduce((sum, item) => sum + item.quantity, 0)} items
+              {t('cart.items', { count: cartItems.reduce((sum, item) => sum + item.quantity, 0) })}
             </p>
           </motion.div>
 
@@ -183,25 +185,25 @@ const Cart = () => {
                 className="sticky top-36"
               >
                 <h2 className="text-xs tracking-luxury uppercase font-medium text-foreground mb-6">
-                  Order Summary
+                  {t('cart.summaryHeading')}
                 </h2>
 
                 {/* Promo Code */}
                 <div className="flex gap-2 mb-8">
                   <Input
-                    placeholder="Promo code"
+                    placeholder={t('cart.promoPlaceholder')}
                     value={promoCode}
                     onChange={(e) => setPromoCode(e.target.value)}
                     className="rounded-none"
                   />
                   <Button variant="outline" className="rounded-none text-xs tracking-luxury uppercase">
-                    Apply
+                    {t('cart.promoApply')}
                   </Button>
                 </div>
 
                 <div className="space-y-4 mb-8">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Total</span>
+                    <span className="text-muted-foreground">{t('cart.totalLabel')}</span>
                     <span className="font-medium">CHF {subtotal.toFixed(0)}</span>
                   </div>
                   {/* <div className="flex justify-between text-sm">
@@ -219,7 +221,7 @@ const Cart = () => {
 
                 <div className="border-t border-border pt-6 mb-8">
                   <div className="flex justify-between">
-                    <span className="text-foreground">Total</span>
+                    <span className="text-foreground">{t('cart.totalLabel')}</span>
                     <span className="text-lg font-medium text-foreground">
                       CHF {total.toFixed(0)}
                     </span>
@@ -228,13 +230,13 @@ const Cart = () => {
 
                 <Link to="/checkout">
                   <Button className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-none h-12 text-xs tracking-luxury uppercase">
-                    Proceed to Checkout
+                    {t('cart.buttonCheckout')}
                     <ArrowRight className="ml-3 w-4 h-4" />
                   </Button>
                 </Link>
 
                 <p className="text-xs text-center text-muted-foreground mt-6">
-                  Secure checkout • 30-day returns
+                  {t('cart.secureNote')}
                 </p>
               </motion.div>
             </div>

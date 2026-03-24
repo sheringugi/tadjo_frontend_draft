@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
@@ -28,6 +29,8 @@ const Products = () => {
   );
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [sortBy, setSortBy] = useState('featured');
+
+  const { t } = useTranslation('common');
 
   useEffect(() => {
     const category = searchParams.get('category');
@@ -111,7 +114,7 @@ const Products = () => {
     <div className="space-y-8">
       {/* Categories */}
       <div>
-        <h4 className="text-xs tracking-luxury uppercase font-medium text-foreground mb-4">Categories</h4>
+        <h4 className="text-xs tracking-luxury uppercase font-medium text-foreground mb-4">{t('productsPage.filterCategories')}</h4>
         <div className="space-y-3">
           {categories.map(category => (
             <label
@@ -136,7 +139,7 @@ const Products = () => {
 
       {/* Price Range */}
       <div>
-        <h4 className="text-xs tracking-luxury uppercase font-medium text-foreground mb-4">Price Range</h4>
+        <h4 className="text-xs tracking-luxury uppercase font-medium text-foreground mb-4">{t('productsPage.filterPrice')}</h4>
         <Slider
           value={priceRange}
           onValueChange={setPriceRange}
@@ -158,7 +161,7 @@ const Products = () => {
           className="w-full rounded-none text-xs tracking-luxury uppercase"
         >
           <X className="w-4 h-4 mr-2" />
-          Clear Filters
+          {t('productsPage.buttonClearFilters')}
         </Button>
       )}
     </div>
@@ -176,11 +179,11 @@ const Products = () => {
             {/* <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-3">
               The Collection
             </p> */}
-            <h1 className="text-4xl md:text-5xl font-display font-normal text-muted-foreground mb-4">
-              All Products
+            <h1 className="text-4xl md:text-5xl font-display font-normal text-foreground mb-4">
+              {t('productsPage.heading')}
             </h1>
             <p className="text-muted-foreground">
-              {filteredProducts.length} pieces
+              {t('productsPage.pieces', { count: filteredProducts.length })}
             </p>
           </motion.div>
 
@@ -199,12 +202,12 @@ const Products = () => {
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button variant="outline" className="flex-1 rounded-none text-xs tracking-luxury uppercase">
-                      Filters
+                      {t('productsPage.buttonFilters')}
                     </Button>
                   </SheetTrigger>
                   <SheetContent side="left" className="w-80">
                     <SheetHeader>
-                      <SheetTitle className="text-xs tracking-luxury uppercase font-medium">Filters</SheetTitle>
+                      <SheetTitle className="text-xs tracking-luxury uppercase font-medium">{t('productsPage.buttonFilters')}</SheetTitle>
                     </SheetHeader>
                     <div className="mt-8">
                       <FilterContent />
@@ -217,10 +220,10 @@ const Products = () => {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="flex-1 px-4 py-2 border border-input bg-background text-xs tracking-wide uppercase"
                 >
-                  <option value="featured">Featured</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="rating">Top Rated</option>
+                  <option value="featured">{t('productsPage.sortFeatured')}</option>
+                  <option value="price-low">{t('productsPage.sortPriceLow')}</option>
+                  <option value="price-high">{t('productsPage.sortPriceHigh')}</option>
+                  <option value="rating">{t('productsPage.sortRating')}</option>
                 </select>
               </div>
 
@@ -231,16 +234,16 @@ const Products = () => {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-2 border border-input bg-background text-xs tracking-wide uppercase"
                 >
-                  <option value="featured">Sort by: Featured</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="rating">Top Rated</option>
+                  <option value="featured">{t('productsPage.sortFeaturedDesktop')}</option>
+                  <option value="price-low">{t('productsPage.sortPriceLow')}</option>
+                  <option value="price-high">{t('productsPage.sortPriceHigh')}</option>
+                  <option value="rating">{t('productsPage.sortRating')}</option>
                 </select>
               </div>
 
               {/* Products Grid */}
               {isLoading ? (
-                <p className="text-center py-20 text-muted-foreground">Loading products...</p>
+                <p className="text-center py-20 text-muted-foreground">{t('productsPage.loading')}</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
                   {filteredProducts.map((product, index) => (
@@ -251,13 +254,13 @@ const Products = () => {
 
               {!isLoading && filteredProducts.length === 0 && (
                 <div className="text-center py-20">
-                  <p className="text-muted-foreground">No products found</p>
+                  <p className="text-muted-foreground">{t('productsPage.noProducts')}</p>
                   <Button 
                     variant="outline" 
                     onClick={clearFilters} 
                     className="mt-4 rounded-none text-xs tracking-luxury uppercase"
                   >
-                    Clear Filters
+                    {t('productsPage.buttonClearFilters')}
                   </Button>
                 </div>
               )}

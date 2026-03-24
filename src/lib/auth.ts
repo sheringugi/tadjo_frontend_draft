@@ -81,6 +81,8 @@ export const adminFetch = async (url: string, options: RequestInit = {}) => {
 
 // Customer login
 export const customerLogin = async (email: string, password: string) => {
+  console.log(`DEBUG: Sending login for '${email}', password length: ${password.length}`);
+
   const formData = new FormData();
   formData.append('username', email);
   formData.append('password', password);
@@ -90,7 +92,13 @@ export const customerLogin = async (email: string, password: string) => {
     body: formData,
   });
 
-  if (!res.ok) throw new Error('Invalid credentials');
+  if (!res.ok) {
+    // Log the actual error from the server to the console
+    const errorData = await res.text();
+    console.error('Login Failed. Status:', res.status);
+    console.error('Server Response:', errorData);
+    throw new Error('Invalid credentials');
+  }
 
   const data = await res.json();
   setCustomerToken(data.access_token);

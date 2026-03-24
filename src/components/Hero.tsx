@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Hero = () => {
+  const { t } = useTranslation('common');
   return (
     <section className="relative min-h-screen flex items-center pt-24 md:pt-32">
       {/* Background Image */}
@@ -25,19 +27,17 @@ const Hero = () => {
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           >
             <p className="text-5xl md:text-6xl lg:text-5xl font-display font-normal text-muted-foreground leading-[1.1] mb-6">
-              Luxury with Purpose
+              {t('hero.subheading')}
             </p>
 
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-normal text-foreground leading-[1.1] mb-6">
-              Timeless Elegance
+              {t('hero.heading1')}
               <br />
-              <span className="text-5xl md:text-6xl lg:text-7xl font-display font-normal text-foreground leading-[1.1] mb-6">for Your Companion</span>
+              {t('hero.heading2')}
             </h1>
             
             <p className="text-base text-muted-foreground max-w-md mb-10 leading-relaxed">
-              Pet accessories in the finest materials. 
-              Designed for discerning pet owners who appreciate 
-              quiet luxury and enduring quality.
+              {t('hero.description')}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -46,7 +46,7 @@ const Hero = () => {
                   size="lg" 
                   className="bg-foreground text-background hover:bg-foreground/90 rounded-none px-10 h-12 text-xs tracking-luxury uppercase"
                 >
-                  Shop Collection
+                  {t('hero.buttonShop')}
                   <ArrowRight className="ml-3 w-4 h-4" />
                 </Button>
               </Link>
@@ -57,7 +57,7 @@ const Hero = () => {
                   variant="outline" 
                   className="border-foreground text-foreground hover:bg-foreground hover:text-background rounded-none px-10 h-12 text-xs tracking-luxury uppercase"
                 >
-                  Our Story
+                  {t('hero.buttonStory')}
                 </Button>
               </Link>
             </div>
@@ -70,7 +70,7 @@ const Hero = () => {
             transition={{ delay: 0.6, duration: 0.8 }}
             className="flex flex-wrap gap-8 mt-16 text-xs text-muted-foreground tracking-wide uppercase"
           >
-            <span>Free Shipping</span>
+            <span>{t('hero.trustIndicatorShipping')}</span>
             {/* <span>•</span>
             <span>Handcrafted</span>
             <span>•</span>

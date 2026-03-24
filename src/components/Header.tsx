@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { ShoppingBag, Menu, X, Heart, User, LogOut, Package, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getCartCount, initializeCart } from '@/lib/store';
 import { getWishlistCount, initializeWishlist } from '@/lib/wishlist';
 import { isCustomerAuthenticated, customerLogout, customerFetch, getCurrentUser } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -19,6 +21,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation('common');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,12 +68,12 @@ const Header = () => {
   }, [location]);
 
   const navLinks = [
-    { to: '/', label: 'Home' },
-    { to: '/products', label: 'Shop' },
+    { to: '/', label: t('header.navHome') },
+    { to: '/products', label: t('header.navShop') },
     // { to: '/products?category=collars', label: 'Collars' },
     // { to: '/products?category=leashes', label: 'Leashes' },
-    { to: '/about', label: 'Our Story' },
-    { to: '/contact', label: 'Contact' },
+    { to: '/about', label: t('header.navOurStory') },
+    { to: '/contact', label: t('header.navContact') },
   ];
 
   return (
@@ -83,7 +86,7 @@ const Header = () => {
         {/* Top bar - subtle announcement */}
         <div className="hidden md:flex items-center justify-center py-2 border-b border-border/50">
           <p className="text-l tracking-luxury text-foreground uppercase">
-            10% OF EVERY PURCHASE SUPPORTS TAJDO NGO IN HELPING  AND RESCUING THE STREET DOGS OF ZANZIBAR
+            {t('header.announcement')}
           </p>
         </div>
 
@@ -128,7 +131,8 @@ const Header = () => {
           {/* Right Section */}
           <div className="flex-1 flex items-center justify-end">
             {/* Actions */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 ">
+              <div className="mr-2"><LanguageSwitcher /></div>
               <div className="relative">
                 <Button
                   variant="ghost"
@@ -156,11 +160,11 @@ const Header = () => {
                       <div className="space-y-1">
                         <Link to="/account" className="flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-secondary transition-colors">
                           <User className="w-4 h-4 text-muted-foreground" />
-                          My Profile
+                          {t('header.profileMyProfile')}
                         </Link>
                         <Link to="/account" className="flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-secondary transition-colors">
                           <Package className="w-4 h-4 text-muted-foreground" />
-                          Orders
+                          {t('header.profileOrders')}
                         </Link>
                         <Link to="/account" className="flex items-center gap-3 px-3 py-2 text-sm text-foreground hover:bg-secondary transition-colors">
                           <div className="relative">
@@ -169,7 +173,7 @@ const Header = () => {
                               <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500" />
                             )}
                           </div>
-                          Notifications
+                          {t('header.profileNotifications')}
                         </Link>
                         <div className="h-px bg-border my-1" />
                         <button
@@ -178,12 +182,12 @@ const Header = () => {
                             setIsLoggedIn(false);
                             setIsProfileOpen(false);
                             navigate('/');
-                            toast({ title: "Logged out", description: "See you soon!" });
+                            toast({ title: t('header.toastLoggedOutTitle'), description: t('header.toastLoggedOutDesc') });
                           }}
                           className="w-full flex items-center gap-3 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors text-left"
                         >
                           <LogOut className="w-4 h-4" />
-                          Sign Out
+                          {t('header.profileSignOut')}
                         </button>
                       </div>
                     </motion.div>

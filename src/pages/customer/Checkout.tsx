@@ -35,6 +35,8 @@ const CheckoutForm = () => {
     city: '',
     zip: '',
   });
+  // State for Twint Step 2
+  const [twintOrder, setTwintOrder] = useState<{ order_number: string, total: number } | null>(null);
 
   // ✅ ADD: Stripe hooks
   const stripe = useStripe();
@@ -83,6 +85,12 @@ const CheckoutForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // If this is the "I have completed payment" button action (handled via link, but safety check)
+    if (twintOrder) {
+      navigate(`/order-confirmation?order_number=${twintOrder.order_number}`);
+      return;
+    }
+
     // Guard: Stripe must be loaded
     if (!stripe || !elements) {
       toast({
@@ -99,6 +107,54 @@ const CheckoutForm = () => {
       const user = await getCurrentUser();
 
       // ============================================
+      // TWINT FLOW (Two-Step: Order First, Pay Second)
+      // ============================================
+      if (paymentMethod === 'twint') {
+        // 1. Create Address
+        const addressRes = await customerFetch('/addresses/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: user.id,
+            line1: formData.address,
+            city: formData.city,
+            postal_code: formData.zip,
+            country: 'CH',
+            is_default: true
+          })
+        });
+
+        if (!addressRes.ok) throw new Error('Failed to save address');
+        const savedAddress = await addressRes.json();
+
+        // 2. Create Order (Status: Processing/Pending)
+        // We use a placeholder ID since payment happens externally
+        const orderRes = await customerFetch('/orders/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: user.id,
+            shipping_address_id: savedAddress.id,
+            payment_method: 'twint',
+            payment_intent_id: `TWINT_PENDING_${Date.now()}`, 
+            items: cartItems.map(item => ({
+              product_id: item.product.id,
+              quantity: item.quantity
+            }))
+          })
+        });
+
+        if (!orderRes.ok) throw new Error('Failed to place order');
+        const savedOrder = await orderRes.json();
+
+        // 3. Clear Cart and Show Payment Step
+        clearCart();
+        setTwintOrder({ order_number: savedOrder.order_number, total: Number(savedOrder.total) });
+        setIsProcessing(false);
+        return;
+      }
+
+      // ============================================
       // STEP 1: Create Payment Intent on backend
       // (Like M-Pesa STK Push initiation)
       // ============================================
@@ -113,51 +169,6 @@ const CheckoutForm = () => {
 
       if (!intentRes.ok) throw new Error('Failed to create payment intent');
       const { client_secret } = await intentRes.json();
-
-      // ============================================
-      // STEP 2: Confirm Payment with Stripe
-      // (Like customer entering M-Pesa PIN)
-      // ============================================
-      if (paymentMethod === 'twint') {
-        // 1. Save order data for after redirect
-        sessionStorage.setItem('pending_order_data', JSON.stringify({
-          address: {
-            user_id: user.id,
-            line1: formData.address,
-            city: formData.city,
-            postal_code: formData.zip,
-            country: 'CH',
-            is_default: true
-          },
-          items: cartItems.map(item => ({
-            product_id: item.product.id,
-            quantity: item.quantity
-          }))
-        }));
-
-        // 2. Create payment method
-        const { error: pmError, paymentMethod: pm } = await stripe.createPaymentMethod({
-          type: 'twint',
-          billing_details: {
-            name: `${formData.firstName} ${formData.lastName}`,
-            email: formData.email,
-            phone: formData.phone,
-          }
-        });
-
-        if (pmError) throw new Error(pmError.message);
-
-        // 3. Redirect to Twint (user leaves page here)
-        const { error } = await stripe.confirmTwintPayment(client_secret, {
-          payment_method: pm.id,
-          return_url: `${window.location.origin}/order-confirmation`
-        });
-
-        if (error) throw new Error(error.message);
-        
-        // Code never reaches here for Twint usually
-        return;
-      }
 
       // ============================================
       // CARD FLOW (Immediate)
@@ -258,6 +269,57 @@ const CheckoutForm = () => {
       setIsProcessing(false);
     }
   };
+
+  // ============================================
+  // STEP 2 VIEW: Pay with Twint
+  // ============================================
+  if (twintOrder) {
+    // const twintUrl = `https://go.twint.ch/1/e/tw?tw=acq.m6hRmNXzRFif8Usa0nkjxP68X0niErIPXSrcY1XoYUkayz9rr87yHxiIxAxS-6C2&amount=${twintOrder.total.toFixed(2)}&trxInfo=${twintOrder.order_number}`;
+    const twintUrl = `https://go.twint.ch/1/e/tw?tw=acq.CEeb5AsGTJC-XG4DVUh3ZbQUFwvQJblSBrQaeQCLPTswCKQm7PSbLYeECDSAU3Id&amount=${twintOrder.total.toFixed(2)}&trxInfo=${twintOrder.order_number}`;
+
+    return (
+      <div className="pt-24 md:pt-32 pb-24 container mx-auto text-center max-w-lg">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-8"
+        >
+          <h1 className="text-3xl font-display text-foreground">Order Placed!</h1>
+          <p className="text-muted-foreground">
+            Your order <strong>{twintOrder.order_number}</strong> has been created.
+            <br />
+            Please pay <strong>CHF {twintOrder.total.toFixed(2)}</strong> using the button below.
+          </p>
+          <div className="flex justify-center mb-4">
+            <button
+              onClick={() => window.open(twintUrl, '_blank')}
+              style={{
+                width: 'auto',
+                height: '58px',
+                borderRadius: '6px',
+                display: 'flex',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                backgroundColor: 'transparent',
+                border: 'none',
+                alignItems: 'center'
+              }}
+            >
+              <img style={{ width: 'auto', height: '58px' }} alt="Pay with TWINT" src="https://go.twint.ch/static/img/button_dark_en.svg" />
+            </button>
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            Use the button above to pay. Once you have paid in the Twint app, click the button below to view your receipt.
+          </p>
+
+          <Button variant="outline" onClick={() => navigate(`/order-confirmation?order_number=${twintOrder.order_number}`)} className="w-full rounded-none h-12 uppercase tracking-luxury">
+            I have completed payment
+          </Button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="pt-24 md:pt-32 pb-24">
@@ -493,7 +555,7 @@ const CheckoutForm = () => {
                   ) : (
                     <>
                       <Lock className="w-4 h-4 mr-2" />
-                      {paymentMethod === 'twint' ? 'Continue to Twint' : 'Place Order'}
+                      Place Order
                     </>
                   )}
                 </Button>

@@ -1,8 +1,23 @@
 import { motion } from 'framer-motion';
-import { Heart, ExternalLink, Leaf, Globe, HandHeart, TrendingUp, BookOpen } from 'lucide-react';
+import { useTranslation, Trans } from 'react-i18next';
+import { Heart, ExternalLink, Leaf, Globe, HandHeart, TrendingUp, BookOpen, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const AboutUs = () => {
+  const { t } = useTranslation('common');
+
+  const missions = [
+    { icon: Heart, title: t('about.mission1Title'), description: t('about.mission1Desc') },
+    { icon: TrendingUp, title: t('about.mission2Title'), description: t('about.mission2Desc') },
+    { icon: BookOpen, title: t('about.mission3Title'), description: t('about.mission3Desc') },
+  ];
+
+  const values = [
+    { icon: HandHeart, title: t('about.value1Title'), description: t('about.value1Desc') },
+    { icon: Leaf, title: t('about.value2Title'), description: t('about.value2Desc') },
+    { icon: Globe, title: t('about.value3Title'), description: t('about.value3Desc') },
+  ];
+
   return (
     <>
       {/* Hero */}
@@ -16,13 +31,13 @@ const AboutUs = () => {
               {/* <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">
                 Our Story
               </p> */}
-              <h1 className="text-5xl md:text-6xl font-display font-normal text-muted-foreground mb-6 leading-tight">
-                Our Story
+              <h1 className="text-5xl md:text-6xl font-display font-normal text-foreground mb-6 leading-tight">
+                {t('about.heroHeading')}
                 <br />
                
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                Every purchase supports TAJDO NGO in the rescue and rehabilitation of street dogs in Zanzibar.
+                {t('about.heroSubheading')}
               </p>
             </motion.div>
 
@@ -50,33 +65,33 @@ const AboutUs = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
               >
-                <h2 className="text-3xl md:text-4xl font-display text-foreground mb-6">The Story of Tajana & Dollar</h2>
+                <h2 className="text-3xl md:text-4xl font-display text-foreground mb-6">{t('about.storyTitle')}</h2>
                 <div className="space-y-4 text-muted-foreground leading-relaxed">
                   <p>
-                    TAJDO is a name born from a bond — a combination of <strong>Tajana</strong> and her dog, <strong>Dollar</strong>. An inseparable team from Switzerland to Zanzibar, their story is the heart of our brand.
+                    <Trans i18nKey="about.storyText1" ns="common" components={{ 1: <strong className="text-foreground"/>, 3: <strong className="text-foreground"/> }} />
                   </p>	
                   <p>
-                    Raised in Switzerland, Tajana’s deep love for animals led her to an animal shelter in Italy, where she met Dollar. From that moment on, they became inseparable companions. A journey to Zanzibar changed the course of their lives. Feeling an immediate sense of belonging on the island, and deeply moved by the plight of street dogs, Tajana decided to dedicate her life to helping them.
+                    {t('about.storyText2')}
                   </p>
                   <p>
-                    <strong>TAJDO NGO</strong> was born from this love — a commitment to protect and care for the street dogs of Zanzibar. It represents the belief that the love we share with our own dogs should extend to those still waiting for safety, care, and a home. Through feeding programs, rescues, sterilization efforts, and adoption support, TAJDO NGO continues to give these dogs a second chance.
+                    <Trans i18nKey="about.storyText3" ns="common" components={{ 0: <strong className="text-foreground"/> }} />
                   </p>
                   <p>
-                    After two years of running the organization, the team decided to expand their impact. Today, <strong>10% of every purchase</strong> made on TAJDO goes toward providing food, care, shelter, medication, sterilization, protection, and adoption support for street dogs across Zanzibar.
+                    <Trans i18nKey="about.storyText4" ns="common" components={{ 0: <strong className="text-foreground"/> }} />
                   </p>
-                  <p>
-			<strong> Every purchase is a small act of love. Thank you for being part of our story.</strong>
+                  <p className="font-semibold text-foreground">
+                    <Trans i18nKey="about.storyText5" ns="common" components={{ 0: <em /> }} />
                   </p>
 
                 </div>
                 <a
-                  href="https://tajdo.ch"
+                  href="https://tajdo-rescue.org"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-8 inline-block"
                 >
                   <Button variant="outline" className="rounded-none text-xs tracking-luxury uppercase gap-2">
-                    Visit TAJDO Rescue
+                    {t('about.buttonVisitRescue')}
                     <ExternalLink className="w-3 h-3" />
                   </Button>
                 </a>
@@ -109,13 +124,13 @@ const AboutUs = () => {
               className="text-center mb-16"
             >
               <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">
-                Together for each other
+                {t('about.missionSubheading')}
               </p>
               <h2 className="text-3xl md:text-4xl font-display text-foreground mb-4">
-                Our Mission
+                {t('about.missionHeading')}
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                TAJDO is more than just an organization – we are a community of people who are wholeheartedly and passionately committed to helping the street dogs of Zanzibar. Our goal is to enable every dog to live a safe, loving and healthy life.
+                {t('about.missionDescription')}
               </p>
             </motion.div>
 
@@ -126,36 +141,17 @@ const AboutUs = () => {
               transition={{ delay: 0.2 }}
               className="grid md:grid-cols-3 gap-8 md:gap-12"
             >
-              {/* Mission Item 1 */}
-              <div className="text-center">
-                <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-primary" />
+              {missions.map((mission, index) => (
+                <div key={index} className="text-center">
+                  <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
+                    <mission.icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="font-display text-xl text-foreground mb-3">{mission.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed text-sm">
+                    {mission.description}
+                  </p>
                 </div>
-                <h3 className="font-display text-xl text-foreground mb-3">Maintenance & Care</h3>
-                <p className="text-muted-foreground leading-relaxed text-sm">
-                  Our main mission is to sustainably improve the welfare of street dogs. We ensure every animal has access to food, water, medical care, and a safe environment.
-                </p>
-              </div>
-              {/* Mission Item 2 */}
-              <div className="text-center">
-                <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="font-display text-xl text-foreground mb-3">Development & Vision</h3>
-                <p className="text-muted-foreground leading-relaxed text-sm">
-                  We place dogs in loving homes and work with local vets for vaccinations, surgeries, and spaying/neutering to sustainably regulate the population.
-                </p>
-              </div>
-              {/* Mission Item 3 */}
-              <div className="text-center">
-                <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
-                  <BookOpen className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="font-display text-xl text-foreground mb-3">Education & Enlightenment</h3>
-                <p className="text-muted-foreground leading-relaxed text-sm">
-                  We work to change cultural misconceptions about dogs, raising awareness of their needs and rights to promote harmonious coexistence within the community.
-                </p>
-              </div>
+              ))}
             </motion.div>
           </div>
         </section>
@@ -170,34 +166,15 @@ const AboutUs = () => {
               className="text-center mb-16"
             >
               <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">
-                What We Stand For
+                {t('about.valuesSubheading')}
               </p>
               <h2 className="text-3xl md:text-4xl font-display text-foreground">
-                Our Values
+                {t('about.valuesHeading')}
               </h2>
             </motion.div>
 
             <div className="grid md:grid-cols-3 gap-12">
-              {[
-                {
-                  icon: HandHeart,
-                  title: 'Philanthropy First',
-                  description:
-                    'Every purchase directly funds our rescue station in Zanzibar, providing food, medical care, shelter, and neutering programs for dogs in need.',
-                },
-                {
-                  icon: Leaf,
-                  title: 'Sustainable Craft',
-                  description:
-                    'We believe luxury and responsibility go hand-in-hand. We choose durable, high-quality materials and timeless designs that are made to last.',
-                },
-                {
-                  icon: Globe,
-                  title: 'Beautiful Quality, Global Heart',
-                  description:
-                    'Designed for your fluffy companion, handmade in Tanzania, and shipped worldwide. We combine precision with the warmth and soul of East African craftsmanship.',
-                },
-              ].map((value, i) => (
+              {values.map((value, i) => (
                 <motion.div
                   key={value.title}
                   initial={{ opacity: 0, y: 20 }}
@@ -227,18 +204,18 @@ const AboutUs = () => {
             >
               <Heart className="w-8 h-8 mx-auto mb-6 opacity-60" />
               <h2 className="text-3xl md:text-4xl font-display mb-6">
-                Shop with Heart
+                {t('about.ctaHeading')}
               </h2>
               <p className="text-background/70 leading-relaxed mb-8 max-w-xl mx-auto">
-                Browse our collection of luxury pet accessories and know that every
-                purchase makes a difference.
+                {t('about.ctaDescription')}
               </p>
               <a href="/products">
                 <Button
                   variant="outline"
                   className="rounded-none text-xs tracking-luxury uppercase border-background/30 text-background hover:bg-background hover:text-foreground"
                 >
-                  Shop the Collection
+                  {t('about.ctaButton')}
+                  <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </a>
             </motion.div>

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 import ProductCard from './ProductCard';
 import { fetchProducts, Product } from '@/lib/store';
 
@@ -10,6 +11,7 @@ const FeaturedProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const { t } = useTranslation('common');
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -38,16 +40,16 @@ const FeaturedProducts = () => {
             Curated Selection
           </p> */}
           <h2 className="text-4xl md:text-5xl font-display font-normal text-foreground mb-4">
-            Featured Pieces
+            {t('featuredProducts.heading')}
           </h2>
           <p className="text-muted-foreground max-w-md mx-auto">
-            Each piece is crafted with intention, designed to complement your companion's natural elegance.
+            {t('featuredProducts.description')}
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {isLoading ? (
-            <p className="text-center col-span-4 text-muted-foreground">Loading featured pieces...</p>
+            <p className="text-center col-span-4 text-muted-foreground">{t('home.loadingProducts')}</p>
           ) : (
             products.slice(0, 4).map((product, index) => (
               <ProductCard key={product.id} product={product} index={index} />
@@ -67,7 +69,7 @@ const FeaturedProducts = () => {
               variant="outline" 
               className="rounded-none border-foreground text-foreground hover:bg-foreground hover:text-background px-10 h-12 text-xs tracking-luxury uppercase group"
             >
-              View All Products
+              {t('featuredProducts.buttonViewAll')}
               <ArrowRight className="ml-3 w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>

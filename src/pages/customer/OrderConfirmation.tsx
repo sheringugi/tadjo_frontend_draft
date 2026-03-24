@@ -29,6 +29,7 @@ const OrderConfirmationContent = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const clientSecret = urlParams.get('payment_intent_client_secret');
       const paymentIntentId = urlParams.get('payment_intent');
+      const urlOrderNumber = urlParams.get('order_number');
 
       // Case 1: Returning from Twint (Redirect)
       if (clientSecret && stripe) {
@@ -82,10 +83,31 @@ const OrderConfirmationContent = () => {
           return;
         }
       } 
-      // Case 2: Direct navigation (Card payment success)
+      // Case 2: Direct navigation (Card payment success) OR Manual Twint Link
       else if (location.state?.orderId) {
         setOrderNumber(location.state.orderId);
       } 
+      // Case 3: URL Parameter (Twint Manual Return)
+      else if (urlOrderNumber) {
+        try {
+          // Verify order exists in the database for this user
+          const user = await getCurrentUser();
+          const res = await customerFetch(`/users/${user.id}/orders/`);
+          if (!res.ok) throw new Error('Could not verify order');
+          
+          const orders = await res.json();
+          const orderExists = orders.some((o: any) => o.order_number === urlOrderNumber);
+          
+          if (!orderExists) throw new Error('Order not found');
+          setOrderNumber(urlOrderNumber);
+        } catch (e) {
+          console.error("Order verification failed", e);
+          navigate('/'); // Redirect to home if invalid
+          return;
+        }
+        setIsProcessing(false);
+        return;
+      }
       // Case 3: Invalid access (wait for stripe if clientSecret exists)
       else if (!clientSecret) {
         navigate('/');
@@ -99,6 +121,14 @@ const OrderConfirmationContent = () => {
 
     handleOrderProcessing();
   }, [stripe, location, navigate, toast]);
+
+  // Auto-redirect to account
+  useEffect(() => {
+    if (orderNumber) {
+      const timer = setTimeout(() => navigate('/account'), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [orderNumber, navigate]);
 
   if (isProcessing) {
     return (
@@ -147,7 +177,7 @@ const OrderConfirmationContent = () => {
             <p className="text-sm text-muted-foreground mb-1">Order Number</p>
             <p className="text-2xl font-bold text-primary">{orderNumber}</p>
             <p className="text-sm text-muted-foreground mt-3">
-              We've sent a confirmation email to your inbox
+              Redirecting to your account in 5 seconds...
             </p>
           </motion.div>
 

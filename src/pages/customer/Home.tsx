@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation, Trans } from 'react-i18next';
 import Hero from '@/components/Hero';
 import FeaturedProducts from '@/components/FeaturedProducts';
 import Categories from '@/components/Categories';
@@ -12,6 +13,7 @@ import { Button } from '@/components/ui/button';
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useTranslation('common');
 
   useEffect(() => {
     const loadData = async () => {
@@ -44,11 +46,11 @@ const Home = () => {
             
           >
             {/* <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">Most Loved</p> */}
-            <h2 className="text-3xl md:text-4xl font-display text-foreground">Best Sellers</h2>
+            <h2 className="text-3xl md:text-4xl font-display text-foreground">{t('home.bestsellersHeading')}</h2>
           </motion.div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {isLoading ? (
-              <p className="text-center col-span-4 text-muted-foreground">Loading products...</p>
+              <p className="text-center col-span-4 text-muted-foreground">{t('home.loadingProducts')}</p>
             ) : (
               products.slice(0, 4).map((product, i) => (
                 <ProductCard key={product.id} product={product} index={i} />
@@ -74,7 +76,7 @@ const Home = () => {
               Our Philosophy
             </p> */}
             <h2 className="text-4xl md:text-5xl font-display font-normal text-foreground mb-4">
-              Our Story
+              {t('home.storyHeading')}
             </h2>
           </motion.div>
 
@@ -101,19 +103,19 @@ const Home = () => {
               transition={{ duration: 0.6, delay: 0.1 }}
             >
               <div className="space-y-4 text-muted-foreground leading-relaxed">
-              <p>
-                TAJDO is a name born from a bond: a combination of <strong>Tajana</strong> and her dog, <strong>Dollar</strong>. An unbeatable team from Switzerland to Zanzibar, their story is the heart of our brand.
-              </p>
-              <p>
-                A journey to Zanzibar changed everything for our founder. Moved by the plight of street dogs, she dedicated her life to their cause, creating a brand that gives back with every purchase.
-              </p>
-              <p>
-                TAJDO was born from this love—a desire to take on responsibility and make a meaningful difference.
-              </p>
+                <p>
+                  <Trans 
+                    i18nKey="home.storyText1" 
+                    ns="common"
+                    components={{ 1: <strong />, 3: <strong /> }}
+                  />
+                </p>
+                <p>{t('home.storyText2')}</p>
+                <p>{t('home.storyText3')}</p>
               </div>
               <Link to="/about" className="mt-8 inline-block">
                 <Button variant="outline" className="rounded-none text-xs tracking-luxury uppercase">
-                  Read Our Full Story
+                  {t('home.storyButton')}
                 </Button>
               </Link>
             </motion.div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 interface Category {
   id: string;
@@ -12,6 +13,7 @@ interface Category {
 const Categories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useTranslation('common');
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -47,13 +49,13 @@ const Categories = () => {
             Collections
           </p> */}
           <h2 className="text-4xl md:text-5xl font-display font-normal text-foreground">
-            Shop by Category
+            {t('categories.heading')}
           </h2>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {isLoading ? (
-            <div className="col-span-3 text-center py-12 text-muted-foreground">Loading collections...</div>
+            <div className="col-span-3 text-center py-12 text-muted-foreground">{t('categories.loading')}</div>
           ) : (
             categories.map((category, index) => (
             <motion.div
