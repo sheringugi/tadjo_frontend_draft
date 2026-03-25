@@ -85,7 +85,7 @@ const Header = () => {
       <div className="container mx-auto">
         {/* Top bar - subtle announcement */}
         <div className="flex items-center justify-center py-2 border-b border-border/50">
-          <p className="text-l tracking-luxury text-foreground uppercase">
+          <p className="text-sm tracking-luxury text-foreground uppercase">
             {t('header.announcement')}
           </p>
         </div>
