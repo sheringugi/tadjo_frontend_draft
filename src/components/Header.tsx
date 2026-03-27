@@ -86,7 +86,7 @@ const Header = () => {
         {/* Top bar - subtle announcement */}
         <div className="flex items-center justify-center py-2 border-b border-border/50">
       
-          <p className="text-[8px] tracking-luxury text-foreground uppercase">
+          <p className="text-[8px] md:text-[18px] tracking-luxury text-foreground uppercase text-center">
              {t('header.announcement')}
           </p>
         </div>
