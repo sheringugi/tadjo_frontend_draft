@@ -3,7 +3,7 @@ import { useTranslation, Trans } from 'react-i18next';
 import { Heart, ExternalLink, Leaf, Globe, HandHeart, TrendingUp, BookOpen, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import tajanaDollar from '@/assets/tajana-dollar.jpg';
-import streetDogs from '@/assets/street-dogs.jpg';
+import streetDogs from '@/assets/street-dogs.jpeg';
 
 const AboutUs = () => {
   const { t } = useTranslation('common');
