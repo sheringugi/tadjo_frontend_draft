@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useTranslation, Trans } from 'react-i18next';
 import { Heart, ExternalLink, Leaf, Globe, HandHeart, TrendingUp, BookOpen, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import tajanaDollar from '@/assets/tajana-dollar.jpg';
 
 const AboutUs = () => {
   const { t } = useTranslation('common');
@@ -85,7 +86,7 @@ const AboutUs = () => {
 
                 </div>
                 <a
-                  href="https://tajdo-rescue.org"
+                  href="https://tajdo.ch"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-8 inline-block"
@@ -104,7 +105,7 @@ const AboutUs = () => {
               >
                 <div className="aspect-[4/5] overflow-hidden">
                   <img
-                    src="https://le-cdn.website-editor.net/6ab80cd7b8b644baa0545c7019a6ba1b/dms3rep/multi/opt/Foto_013-1920w.jpg?m"
+                    src={tajanaDollar}
                     alt="Tajana holding a rescued puppy"
                     className="w-full h-full object-cover"
                   />
