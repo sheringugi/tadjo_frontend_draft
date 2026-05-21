@@ -9,6 +9,7 @@ import ProductCard from '@/components/ProductCard';
 import { fetchProducts, Product } from '@/lib/store';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import rescueDogs from '@/assets/rescue-dogs.jpeg';
 
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -89,7 +90,7 @@ const Home = () => {
             >
               <div className="aspect-[4/5] overflow-hidden">
                 <img
-                  src="https://le-cdn.website-editor.net/6ab80cd7b8b644baa0545c7019a6ba1b/dms3rep/multi/opt/Foto_015-1920w.jpg?m"
+                  src={rescueDogs}
                   alt="Dogs in nature"
                   className="w-full h-full object-cover"
                 />
