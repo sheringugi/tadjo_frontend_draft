@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import dollar from '@/assets/dollar.jpeg';
+import dollar from '@/assets/dollar.png';
 
 const Hero = () => {
   const { t } = useTranslation('common');
