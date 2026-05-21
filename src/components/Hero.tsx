@@ -19,7 +19,6 @@ const Hero = () => {
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-transparent" />
 
-        />
       </div>
 
       <div className="container mx-auto relative z-10">
