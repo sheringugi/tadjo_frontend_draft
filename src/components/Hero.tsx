@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import dollar from '@/assets/dollar.jpeg';
 
 const Hero = () => {
   const { t } = useTranslation('common');
@@ -11,7 +12,7 @@ const Hero = () => {
       {/* Background Image */}
       <div className="absolute inset-0">
         <img
-          src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=1920&h=1080&fit=crop"
+          src={dollar}
           alt="Elegant dog with luxury accessories"
           className="w-full h-full object-cover"
         />
