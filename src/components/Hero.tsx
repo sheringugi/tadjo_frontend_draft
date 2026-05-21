@@ -14,7 +14,7 @@ const Hero = () => {
         <img
           src={dollar}
           alt="Elegant dog with luxury accessories"
-          className="w-full h-full object-contain"
+          className="w-full h-full object-cover"
         />
       </div>
 
