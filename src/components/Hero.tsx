@@ -16,6 +16,10 @@ const Hero = () => {
           alt="Elegant dog with luxury accessories"
           className="w-full h-full object-cover"
         />
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/60 to-transparent" />
+
+        />
       </div>
 
       <div className="container mx-auto relative z-10">
