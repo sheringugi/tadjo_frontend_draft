@@ -3,6 +3,7 @@ import { useTranslation, Trans } from 'react-i18next';
 import { Heart, ExternalLink, Leaf, Globe, HandHeart, TrendingUp, BookOpen, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import tajanaDollar from '@/assets/tajana-dollar.jpg';
+import streetDogs from '@/assets/street-dogs.jpg';
 
 const AboutUs = () => {
   const { t } = useTranslation('common');
@@ -49,7 +50,7 @@ const AboutUs = () => {
               className="aspect-[21/9] overflow-hidden mb-16"
             >
               <img
-                src="https://le-cdn.website-editor.net/6ab80cd7b8b644baa0545c7019a6ba1b/dms3rep/multi/opt/Foto_016-1920w.jpg?m"
+                src={streetDogs}
                 alt="TAJDO Rescue dogs"
                 className="w-full h-full object-cover"
               />
