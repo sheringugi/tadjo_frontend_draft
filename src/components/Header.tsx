@@ -70,6 +70,7 @@ const Header = () => {
   const navLinks = [
     { to: '/', label: t('header.navHome') },
     { to: '/products', label: t('header.navShop') },
+    { to: '/training', label: t('header.navTraining') },
     // { to: '/products?category=collars', label: 'Collars' },
     // { to: '/products?category=leashes', label: 'Leashes' },
     { to: '/about', label: t('header.navOurStory') },

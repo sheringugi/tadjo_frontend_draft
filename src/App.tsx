@@ -28,6 +28,7 @@ import Register from './pages/customer/Register';
 import OrderConfirmation from './pages/customer/OrderConfirmation';
 import Returns from './pages/customer/Returns';
 import OrderTracking from './pages/customer/OrderTracking';
+import TrainingPage from './pages/customer/Training';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
           <Route path="/returns" element={<Returns />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/training" element={<TrainingPage />} />
           <Route path="/track-order" element={<OrderTracking />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           

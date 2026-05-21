@@ -81,8 +81,8 @@ const AboutUs = () => {
                   <p>
                     <Trans i18nKey="about.storyText4" ns="common" components={{ 0: <strong className="text-foreground"/> }} />
                   </p>
-                  <p className="font-semibold text-foreground">
-                    <Trans i18nKey="about.storyText5" ns="common" components={{ 0: <em /> }} />
+                  <p>
+                    <Trans i18nKey="about.storyText5" ns="common" components={{ 0: <strong className="text-foreground"/> }} />
                   </p>
 
                 </div>
