@@ -241,15 +241,15 @@
     "toastSuccessDesc": "Please log in.",
     "toastErrorTitle": "Registration Failed",
     "toastErrorDesc": "Please try again.",
-    "labelFirstName": "First Name",
-    "labelLastName": "Last Name",
-    "labelEmail": "Email",
-    "labelPhone": "Phone Number",
-    "labelPassword": "Password",
+    "firstNameLabel": "First Name",
+    "lastNameLabel": "Last Name",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone Number",
+    "passwordLabel": "Password",
     "buttonCreate": "Create Account",
     "buttonCreating": "Creating Account...",
-    "promptLogin": "Already have an account?",
-    "linkLogin": "Sign In"
+    "loginPrompt": "Already have an account?",
+    "loginLink": "Sign In"
   },
   "contact": {
     "heading": "Get in Touch",

@@ -243,15 +243,15 @@
     "toastSuccessDesc": "Bitte melden Sie sich an.",
     "toastErrorTitle": "Registrierung fehlgeschlagen",
     "toastErrorDesc": "Bitte versuchen Sie es erneut.",
-    "labelFirstName": "Vorname",
-    "labelLastName": "Nachname",
-    "labelEmail": "E-Mail",
-    "labelPhone": "Telefonnummer",
-    "labelPassword": "Passwort",
+    "firstNameLabel": "Vorname",
+    "lastNameLabel": "Nachname",
+    "emailLabel": "E-Mail",
+    "phoneLabel": "Telefonnummer",
+    "passwordLabel": "Passwort",
     "buttonCreate": "Konto erstellen",
     "buttonCreating": "Konto wird erstellt...",
-    "promptLogin": "Haben Sie bereits ein Konto?",
-    "linkLogin": "Anmelden"
+    "loginPrompt": "Haben Sie bereits ein Konto?",
+    "loginLink": "Anmelden"
   },
   "contact": {
     "heading": "Kontakt aufnehmen",
