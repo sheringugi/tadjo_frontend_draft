@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,7 +55,12 @@ const AdminLogin = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm text-slate-700">Email</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="email" className="text-sm text-slate-700">Email</Label>
+                <Link to="/forgot-password" title="Go to reset password" className="text-xs text-blue-600 hover:text-blue-700 hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
               <Input
                 id="email"
                 type="email"

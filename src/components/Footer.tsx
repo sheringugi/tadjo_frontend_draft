@@ -104,7 +104,7 @@ const Footer = () => {
             </ul> 
             <div className="flex items-center gap-2 mt-6 text-sm text-background/60">
               <Mail className="w-4 h-4" />
-              Info@tajdo.ch
+              info@tajdo.ch
             </div>
           </div>
         </div>

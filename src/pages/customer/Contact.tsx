@@ -83,7 +83,7 @@ const Contact = () => {
             {/* Contact info */} 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-8"> 
               {[
-                { icon: Mail, label: t('contact.infoEmailLabel'), value: 'Info@tajdo.ch' },
+                { icon: Mail, label: t('contact.infoEmailLabel'), value: 'info@tajdo.ch' },
                 { icon: MapPin, label: t('contact.infoLocationLabel'), value: 'Luzern, Switzerland' },
                 { icon: Clock, label: t('contact.infoResponseLabel'), value: t('contact.infoResponseValue') },
               ].map(item => (

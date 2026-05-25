@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import { customerLogin } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
+  const { t } = useTranslation('common');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -52,8 +54,8 @@ const Login = () => {
     <div className="pt-24 md:pt-32 pb-24">
       <div className="container mx-auto max-w-md">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
-          <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">Welcome Back</p>
-          <h1 className="text-4xl font-display text-foreground">Sign In</h1>
+          <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">{t('login.welcomeBack')}</p>
+          <h1 className="text-4xl font-display text-foreground">{t('login.heading')}</h1>
         </motion.div>
 
         <motion.form
@@ -64,12 +66,17 @@ const Login = () => {
           className="space-y-6"
         >
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-xs text-muted-foreground">Email</Label>
+            <Label htmlFor="email" className="text-xs text-muted-foreground">{t('login.emailLabel')}</Label>
             <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="rounded-none" required />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-xs text-muted-foreground">Password</Label>
+            <div className="flex items-center justify-between mb-1">
+              <Label htmlFor="password" className="text-xs text-muted-foreground">{t('login.passwordLabel')}</Label>
+              <Link to="/forgot-password" className="text-xs text-foreground/60 hover:text-foreground underline underline-offset-4 transition-colors">
+                {t('login.forgotPassword')}
+              </Link>
+            </div>
             <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="rounded-none" required />
           </div>
 
@@ -78,18 +85,18 @@ const Login = () => {
             disabled={isLoading}
             className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-none h-12 text-xs tracking-luxury uppercase"
           >
-            {isLoading ? 'Signing in...' : (
+            {isLoading ? t('login.signingIn') : (
               <>
-                Sign In
+                {t('login.buttonSignIn')}
                 <ArrowRight className="ml-2 w-4 h-4" />
               </>
             )}
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">
-            Don't have an account?{' '}
+            {t('login.noAccount')}{' '}
             <Link to="/register" className="text-foreground underline underline-offset-4">
-              Create account
+              {t('login.createAccount')}
             </Link>
           </p>
         </motion.form>

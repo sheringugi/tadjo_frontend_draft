@@ -29,6 +29,8 @@ import OrderConfirmation from './pages/customer/OrderConfirmation';
 import Returns from './pages/customer/Returns';
 import OrderTracking from './pages/customer/OrderTracking';
 import TrainingPage from './pages/customer/Training';
+import ForgotPassword from './pages/customer/ForgotPassword';
+import ResetPassword from './pages/customer/ResetPassword';
 
 function App() {
   return (
@@ -46,6 +48,8 @@ function App() {
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/training" element={<TrainingPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/track-order" element={<OrderTracking />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           

@@ -214,7 +214,7 @@ const AboutUs = () => {
               <a href="/products">
                 <Button
                   variant="outline"
-                  className="rounded-none text-xs tracking-luxury uppercase border-background/30 text-background hover:bg-background hover:text-foreground"
+                  className="rounded-none text-xs tracking-luxury uppercase bg-background text-foreground border-background/30 hover:bg-foreground hover:text-background"
                 >
                   {t('about.ctaButton')}
                   <ArrowRight className="ml-2 w-4 h-4" />
