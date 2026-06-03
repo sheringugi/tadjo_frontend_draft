@@ -88,6 +88,7 @@ const OrderConfirmationContent = () => {
       else if (location.state?.orderId) {
         setOrderNumber(location.state.orderId);
         setOrderStatus('processing');
+        setIsProcessing(false);
       } 
       // Case 3: URL Parameter (Twint Manual Return)
       else if (urlOrderNumber) {

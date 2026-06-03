@@ -252,6 +252,7 @@ const CheckoutForm = () => {
       // STEP 6: Success
       // ============================================
       clearCart();
+      window.dispatchEvent(new Event('cart-updated'));
       toast({
         title: "Order confirmed! 🎉",
         description: "Your TAJDO order has been placed successfully.",
