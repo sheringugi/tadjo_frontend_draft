@@ -449,7 +449,7 @@ const ContentManagement = () => {
               <div className="flex justify-between items-center">
                 <CardTitle className="text-xl font-display">Edit {PAGES.find(p => p.slug === selectedPage)?.name}</CardTitle>
                 <div className="flex bg-secondary p-1 rounded-none border">
-                  {['en', 'de', 'nl'].map((lang) => (
+                  {['en', 'de'].map((lang) => (
                     <button 
                       key={lang}
                       onClick={() => setSelectedLang(lang)}
