@@ -12,7 +12,9 @@ import { getCurrentUser, customerFetch } from '@/lib/auth';
 
 // ✅ ADD: Stripe imports
 import {
-  CardElement,
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
   useStripe,
   useElements,
   Elements
@@ -175,7 +177,7 @@ const CheckoutForm = () => {
       // ============================================
       const paymentResult = await stripe.confirmCardPayment(client_secret, {
           payment_method: {
-            card: elements.getElement(CardElement)!,
+            card: elements.getElement(CardNumberElement)!,
             billing_details: {
               name: `${formData.firstName} ${formData.lastName}`,
               email: formData.email,
@@ -270,6 +272,31 @@ const CheckoutForm = () => {
     }
   };
 
+  // ✅ Poll for payment confirmation for Twint
+  useEffect(() => {
+    let interval: any;
+    if (twintOrder) {
+      interval = setInterval(async () => {
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_API_BASE_URL}/orders/track?order_number=${twintOrder.order_number}&email=${formData.email}`
+          );
+          if (res.ok) {
+            const data = await res.json();
+            // Once the background listener updates the status, redirect
+            if (data.status !== 'pending_payment') {
+              clearInterval(interval);
+              navigate('/order-confirmation', { state: { orderId: data.order_number } });
+            }
+          }
+        } catch (e) {
+          console.error("Polling for payment status failed", e);
+        }
+      }, 5000); // Check every 5 seconds
+    }
+    return () => clearInterval(interval);
+  }, [twintOrder, formData.email, navigate]);
+
   // ============================================
   // STEP 2 VIEW: Pay with Twint
   // ============================================
@@ -293,29 +320,27 @@ const CheckoutForm = () => {
           <div className="flex justify-center mb-4">
             <button
               onClick={() => window.open(twintUrl, '_blank')}
-              style={{
-                width: 'auto',
-                height: '58px',
-                borderRadius: '6px',
-                display: 'flex',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                backgroundColor: 'transparent',
-                border: 'none',
-                alignItems: 'center'
-              }}
+              className="flex items-center justify-center cursor-pointer bg-transparent border-none p-0 transition-opacity hover:opacity-90"
+              title="Pay with TWINT"
             >
-              <img style={{ width: 'auto', height: '58px' }} alt="Pay with TWINT" src="https://go.twint.ch/static/img/button_dark_en.svg" />
+              <div className="relative">
+                <img 
+                  style={{ height: '58px', width: '220px' }} 
+                  alt="Pay with TWINT" 
+                  src="https://go.twint.ch/static/img/button_dark_en.svg"
+                  onError={(e) => {
+                    // Fallback if image fails to load (AdBlockers)
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement!.innerHTML = '<div class="bg-[#000] text-white px-8 py-4 rounded-md font-bold">PAY WITH TWINT</div>';
+                  }}
+                />
+              </div>
             </button>
           </div>
 
           <p className="text-xs text-muted-foreground">
-            Use the button above to pay. Once you have paid in the Twint app, click the button below to view your receipt.
+            Use the button above to pay. This page will update automatically once your payment is confirmed.
           </p>
-
-          <Button variant="outline" onClick={() => navigate(`/order-confirmation?order_number=${twintOrder.order_number}`)} className="w-full rounded-none h-12 uppercase tracking-luxury">
-            I have completed payment
-          </Button>
         </motion.div>
       </div>
     );
@@ -437,31 +462,52 @@ const CheckoutForm = () => {
                   </label>
                 </RadioGroup>
 
-                {/* ✅ Stripe Card Element (replaces plain inputs) */}
+                {/* ✅ Separate Stripe Elements for a better filling experience */}
                 {paymentMethod === 'card' && (
-                  <div className="mt-6">
-                    <Label className="text-xs text-muted-foreground mb-2 block">
-                      Card Details
-                    </Label>
-                    <div className="border border-border p-4 rounded-none focus-within:border-foreground transition-colors">
-                      <CardElement
-                        options={{
-                          style: {
-                            base: {
-                              fontSize: '14px',
-                              color: '#1a1a1a',
-                              fontFamily: 'Inter, sans-serif',
-                              '::placeholder': {
-                                color: '#9ca3af'
-                              }
+                  <div className="mt-6 space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Card Number</Label>
+                      <div className="border border-border p-4 rounded-none focus-within:border-foreground transition-colors bg-white">
+                        <CardNumberElement
+                          options={{
+                            style: {
+                              base: { fontSize: '14px', color: '#1a1a1a', fontFamily: 'Inter, sans-serif', '::placeholder': { color: '#9ca3af' } },
+                              invalid: { color: '#ef4444' }
                             },
-                            invalid: {
-                              color: '#ef4444'
-                            }
-                          },
-                          hidePostalCode: true
-                        }}
-                      />
+                            showIcon: true,
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">Expiry Date</Label>
+                        <div className="border border-border p-4 rounded-none focus-within:border-foreground transition-colors bg-white">
+                          <CardExpiryElement
+                            options={{
+                              style: {
+                                base: { fontSize: '14px', color: '#1a1a1a', fontFamily: 'Inter, sans-serif', '::placeholder': { color: '#9ca3af' } },
+                                invalid: { color: '#ef4444' }
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs text-muted-foreground">CVC</Label>
+                        <div className="border border-border p-4 rounded-none focus-within:border-foreground transition-colors bg-white">
+                          <CardCvcElement
+                            options={{
+                              style: {
+                                base: { fontSize: '14px', color: '#1a1a1a', fontFamily: 'Inter, sans-serif', '::placeholder': { color: '#9ca3af' } },
+                                invalid: { color: '#ef4444' }
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">
                       🔒 Your card details are encrypted and secure

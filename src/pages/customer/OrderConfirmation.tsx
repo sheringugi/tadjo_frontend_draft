@@ -23,6 +23,7 @@ const OrderConfirmationContent = () => {
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(true);
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
+  const [orderStatus, setOrderStatus] = useState<string | null>(null);
 
   useEffect(() => {
     const handleOrderProcessing = async () => {
@@ -86,6 +87,7 @@ const OrderConfirmationContent = () => {
       // Case 2: Direct navigation (Card payment success) OR Manual Twint Link
       else if (location.state?.orderId) {
         setOrderNumber(location.state.orderId);
+        setOrderStatus('processing');
       } 
       // Case 3: URL Parameter (Twint Manual Return)
       else if (urlOrderNumber) {
@@ -96,10 +98,30 @@ const OrderConfirmationContent = () => {
           if (!res.ok) throw new Error('Could not verify order');
           
           const orders = await res.json();
-          const orderExists = orders.some((o: any) => o.order_number === urlOrderNumber);
+          const foundOrder = orders.find((o: any) => o.order_number === urlOrderNumber);
           
-          if (!orderExists) throw new Error('Order not found');
+          if (!foundOrder) throw new Error('Order not found');
           setOrderNumber(urlOrderNumber);
+          
+          if (foundOrder.status === 'pending_payment') {
+            setOrderStatus('pending_payment');
+            // Keep isProcessing true and poll
+            const interval = setInterval(async () => {
+              const pollRes = await customerFetch(`/users/${user.id}/orders/`);
+              if (pollRes.ok) {
+                const pollData = await pollRes.json();
+                const updatedOrder = pollData.find((o: any) => o.order_number === urlOrderNumber);
+                if (updatedOrder && updatedOrder.status !== 'pending_payment') {
+                  setOrderStatus(updatedOrder.status);
+                  setIsProcessing(false);
+                  clearInterval(interval);
+                }
+              }
+            }, 5000);
+            return () => clearInterval(interval);
+          } else {
+            setOrderStatus(foundOrder.status);
+          }
         } catch (e) {
           console.error("Order verification failed", e);
           navigate('/'); // Redirect to home if invalid
@@ -124,24 +146,33 @@ const OrderConfirmationContent = () => {
 
   // Auto-redirect to account
   useEffect(() => {
-    if (orderNumber) {
+    // Only auto-redirect if the payment has actually been processed
+    if (orderNumber && orderStatus === 'processing') {
       const timer = setTimeout(() => navigate('/account'), 5000);
       return () => clearTimeout(timer);
     }
-  }, [orderNumber, navigate]);
+  }, [orderNumber, orderStatus, navigate]);
 
   if (isProcessing) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center space-y-4">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-muted-foreground">Finalizing your order...</p>
+          <h1 className="text-2xl font-display text-foreground">
+            {orderStatus === 'pending_payment' ? 'Awaiting Payment Confirmation' : 'Finalizing your order...'}
+          </h1>
+          <p className="text-muted-foreground max-w-xs mx-auto">
+            {orderStatus === 'pending_payment' 
+              ? 'We are waiting for the payment system to confirm your transaction. This will update automatically.' 
+              : 'Please wait a moment while we verify your order details.'}
+          </p>
         </div>
       </div>
     );
   }
 
-  if (!orderNumber) return null;
+  // If we reach here and status is still pending, something is wrong or we are still polling
+  if (!orderNumber || orderStatus === 'pending_payment') return null;
 
   return (
     <div className="pt-24 md:pt-32 pb-16">
@@ -176,9 +207,11 @@ const OrderConfirmationContent = () => {
           >
             <p className="text-sm text-muted-foreground mb-1">Order Number</p>
             <p className="text-2xl font-bold text-primary">{orderNumber}</p>
-            <p className="text-sm text-muted-foreground mt-3">
-              Redirecting to your account in 5 seconds...
-            </p>
+            {orderStatus === 'processing' && (
+              <p className="text-sm text-muted-foreground mt-3">
+                Redirecting to your account in 5 seconds...
+              </p>
+            )}
           </motion.div>
 
           {/* Order Status */}

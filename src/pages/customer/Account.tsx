@@ -14,6 +14,7 @@ interface Order {
   order_number: string;
   status: string;
   total: number;
+  payment_method?: string;
   created_at?: string;
   items: any[];
 }
@@ -95,6 +96,41 @@ const Account = () => {
     loadData();
   }, []);
 
+  // ✅ Poll for payment updates automatically if there are pending orders
+  useEffect(() => {
+    let intervalId: any;
+    
+    // Only start polling if the user is logged in and has pending payments
+    if (user && orders.some(o => o.status === 'pending_payment')) {
+      intervalId = setInterval(async () => {
+        try {
+          const res = await customerFetch(`/users/${user.id}/orders/`);
+          if (res.ok) {
+            const newData = await res.json();
+            
+            // Identify if any order changed from pending_payment to a paid status
+            const transitioned = newData.find((newOrder: Order) => {
+              const oldOrder = orders.find(o => o.id === newOrder.id);
+              return oldOrder?.status === 'pending_payment' && newOrder.status !== 'pending_payment';
+            });
+
+            if (transitioned) {
+              setOrders(newData);
+              toast({ 
+                title: "Payment confirmed! 🎉", 
+                description: `Order ${transitioned.order_number} has been successfully processed.` 
+              });
+            }
+          }
+        } catch (error) {
+          console.error("Polling for orders failed:", error);
+        }
+      }, 10000); // Check every 10 seconds
+    }
+
+    return () => clearInterval(intervalId);
+  }, [user, orders, toast]);
+
   const handleLogout = () => {
     customerLogout();
     window.dispatchEvent(new Event('cart-updated'));
@@ -161,6 +197,13 @@ const Account = () => {
 
   if (!user) return null;
 
+  const unpaidOrders = orders.filter(o => o.status === 'pending_payment');
+  const paidOrders = orders.filter(o => o.status !== 'pending_payment');
+
+  const getTwintUrl = (order: Order) => {
+    return `https://go.twint.ch/1/e/tw?tw=acq.CEeb5AsGTJC-XG4DVUh3ZbQUFwvQJblSBrQaeQCLPTswCKQm7PSbLYeECDSAU3Id&amount=${Number(order.total).toFixed(2)}&trxInfo=Order%20${order.order_number}`;
+  };
+
   return (
     <div className="pt-24 md:pt-32 pb-24">
       <div className="container mx-auto max-w-4xl">
@@ -180,12 +223,24 @@ const Account = () => {
         </motion.div>
 
         <Tabs defaultValue="orders" className="space-y-8">
-          <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent gap-8">
+          <TabsList className="w-full flex-wrap justify-start border-b rounded-none h-auto p-0 bg-transparent gap-x-8 gap-y-4">
             <TabsTrigger
               value="orders"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent px-0 pb-3 text-sm tracking-wide uppercase"
             >
               Order History
+            </TabsTrigger>
+            <TabsTrigger
+              value="paid"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent px-0 pb-3 text-sm tracking-wide uppercase"
+            >
+              Paid Orders
+            </TabsTrigger>
+            <TabsTrigger
+              value="unpaid"
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-foreground data-[state=active]:bg-transparent px-0 pb-3 text-sm tracking-wide uppercase"
+            >
+              Unpaid Orders
             </TabsTrigger>
             <TabsTrigger
               value="notifications"
@@ -210,31 +265,137 @@ const Account = () => {
                 <Button onClick={() => navigate('/products')} className="rounded-none text-xs tracking-luxury uppercase">Browse Shop</Button>
               </div>
             ) : (
+              <div className="space-y-12">
+                {/* Unpaid Orders Section */}
+                {unpaidOrders.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-sm font-display uppercase tracking-luxury text-destructive">Unpaid Orders</h3>
+                    {unpaidOrders.map((order) => (
+                      <div key={order.id} className="border border-destructive/20 bg-destructive/5 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                          <p className="font-medium text-foreground mb-1">{order.order_number}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {order.created_at ? new Date(order.created_at).toLocaleDateString() : ''} • CHF {Number(order.total).toFixed(2)}
+                          </p>
+                        </div>
+                        <Button 
+                          onClick={() => window.open(getTwintUrl(order), '_blank')}
+                          className="rounded-none bg-foreground text-background text-xs tracking-luxury uppercase h-10 px-8"
+                        >
+                          Complete Payment (TWINT)
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Paid Orders Section */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-display uppercase tracking-luxury">Order History</h3>
+                  {paidOrders.length === 0 ? (
+                    <p className="text-sm text-muted-foreground italic">No paid orders yet.</p>
+                  ) : (
+                    paidOrders.map((order) => (
+                      <div key={order.id} className="border border-border p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="font-medium text-foreground">{order.order_number}</span>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wide ${
+                              order.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                              order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                              order.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
+                              order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                              'bg-secondary text-muted-foreground'
+                            }`}>
+                              {order.status}
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            {order.created_at ? new Date(order.created_at).toLocaleDateString() : ''} • CHF {Number(order.total).toFixed(2)}
+                          </p>
+                        </div>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => navigate(`/order-confirmation?order_number=${order.order_number}`)}
+                          className="rounded-none text-xs tracking-luxury uppercase h-10 px-8"
+                        >
+                          View Confirmation
+                        </Button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="paid">
+            {paidOrders.length === 0 ? (
+              <div className="text-center py-12 border border-dashed border-border">
+                <Package className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+                <h3 className="text-lg font-medium mb-2">No paid orders</h3>
+                <p className="text-muted-foreground mb-6">Orders will appear here once payment is confirmed.</p>
+                <Button onClick={() => navigate('/products')} className="rounded-none text-xs tracking-luxury uppercase">Browse Shop</Button>
+              </div>
+            ) : (
               <div className="space-y-4">
-                {orders.map((order) => (
+                <h3 className="text-sm font-display uppercase tracking-luxury">Completed Orders</h3>
+                {paidOrders.map((order) => (
                   <div key={order.id} className="border border-border p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-3 mb-2">
                         <span className="font-medium text-foreground">{order.order_number}</span>
                         <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wide ${
-                          // order.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                          // order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                           order.status === 'delivered' ? 'bg-green-100 text-green-800' :
                           order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
-                          order.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                          order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                          order.status === 'refunded' ? 'bg-orange-100 text-orange-800' :
-                          'bg-secondary text-muted-foreground'
+                          order.status === 'confirmed' ? 'bg-emerald-100 text-emerald-800' :
+                          'bg-amber-100 text-amber-800'
                         }`}>
                           {order.status}
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        {order.created_at ? new Date(order.created_at).toLocaleDateString() : 'Date N/A'} • {order.items?.length || 0} items
+                        {order.created_at ? new Date(order.created_at).toLocaleDateString() : ''} • CHF {Number(order.total).toFixed(2)}
                       </p>
                     </div>
-                    <div className="flex items-center gap-6">
-                      <p className="font-medium">CHF {Number(order.total).toFixed(2)}</p>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => navigate(`/order-confirmation?order_number=${order.order_number}`)}
+                      className="rounded-none text-xs tracking-luxury uppercase h-10 px-8"
+                    >
+                      View Confirmation
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="unpaid">
+            {unpaidOrders.length === 0 ? (
+              <div className="text-center py-12 border border-dashed border-border">
+                <Check className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+                <h3 className="text-lg font-medium mb-2">All caught up</h3>
+                <p className="text-muted-foreground">You have no orders awaiting payment.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <h3 className="text-sm font-display uppercase tracking-luxury text-destructive">Awaiting Payment</h3>
+                {unpaidOrders.map((order) => (
+                  <div key={order.id} className="border border-destructive/20 bg-destructive/5 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <p className="font-medium text-foreground mb-1">{order.order_number}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {order.created_at ? new Date(order.created_at).toLocaleDateString() : ''} • CHF {Number(order.total).toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={() => window.open(getTwintUrl(order), '_blank')}
+                        className="rounded-none bg-foreground text-background text-xs tracking-luxury uppercase h-10 px-8"
+                      >
+                        Pay with TWINT
+                      </Button>
                     </div>
                   </div>
                 ))}
