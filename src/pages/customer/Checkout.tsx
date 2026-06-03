@@ -262,17 +262,16 @@ const CheckoutForm = () => {
       });
 
     } catch (error: any) {
-      console.error(error);
+      console.error("Checkout submission error:", error);
       
-      // Safely check for network errors (CORS or server down)
-      const errorMessage = error?.message || "There was a problem processing your order.";
-      const isNetworkError = errorMessage.includes("Failed to fetch"); // Check for network error message
+      const msg = error?.message || "There was a problem processing your order.";
+      const isNetErr = msg.toLowerCase().includes("fetch") || msg.toLowerCase().includes("network error");
       
       toast({
         title: "Checkout failed",
-        description: isNetworkError
+        description: isNetErr
           ? "Could not connect to the server. Your payment may have gone through—please check your email before trying again."
-          : errorMessage,
+          : msg,
         variant: "destructive"
       });
     } finally {
