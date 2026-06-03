@@ -47,8 +47,8 @@ const AdminLogin = () => {
       <div className="w-full max-w-sm">
         <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-8">
           <div className="text-center mb-8">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">
-              <Lock className="w-5 h-5 text-blue-600" />
+            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-secondary flex items-center justify-center">
+              <Lock className="w-5 h-5 text-foreground" />
             </div>
             <h1 className="text-xl font-semibold text-slate-900">Admin Login</h1>
             <p className="text-sm text-slate-500 mt-1">TAJDO Management Portal</p>
@@ -58,7 +58,7 @@ const AdminLogin = () => {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="email" className="text-sm text-slate-700">Email</Label>
-                <Link to="/forgot-password" title="Go to reset password" className="text-xs text-blue-600 hover:text-blue-700 hover:underline">
+                <Link to="/forgot-password" title="Go to reset password" className="text-xs text-foreground/60 hover:text-foreground underline underline-offset-4 transition-colors">
                   Forgot password?
                 </Link>
               </div>
@@ -67,7 +67,7 @@ const AdminLogin = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="rounded-lg"
+                className="rounded-none"
                 placeholder="admin@tajdo.ch"
                 required
               />
@@ -81,7 +81,7 @@ const AdminLogin = () => {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="rounded-lg pr-10"
+                  className="rounded-none pr-10"
                   required
                 />
                 <button
@@ -97,7 +97,7 @@ const AdminLogin = () => {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg h-11"
+              className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-none h-12 text-xs tracking-luxury uppercase"
             >
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
