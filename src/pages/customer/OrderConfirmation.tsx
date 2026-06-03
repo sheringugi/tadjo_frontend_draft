@@ -145,15 +145,6 @@ const OrderConfirmationContent = () => {
     handleOrderProcessing();
   }, [stripe, location, navigate, toast]);
 
-  // Auto-redirect to account
-  useEffect(() => {
-    // Only auto-redirect if the payment has actually been processed
-    if (orderNumber && orderStatus === 'processing') {
-      const timer = setTimeout(() => navigate('/account'), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [orderNumber, orderStatus, navigate]);
-
   if (isProcessing) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -208,11 +199,6 @@ const OrderConfirmationContent = () => {
           >
             <p className="text-sm text-muted-foreground mb-1">Order Number</p>
             <p className="text-2xl font-bold text-primary">{orderNumber}</p>
-            {orderStatus === 'processing' && (
-              <p className="text-sm text-muted-foreground mt-3">
-                Redirecting to your account in 5 seconds...
-              </p>
-            )}
           </motion.div>
 
           {/* Order Status */}
