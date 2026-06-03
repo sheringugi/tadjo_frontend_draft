@@ -449,18 +449,15 @@ const ContentManagement = () => {
               <div className="flex justify-between items-center">
                 <CardTitle className="text-xl font-display">Edit {PAGES.find(p => p.slug === selectedPage)?.name}</CardTitle>
                 <div className="flex bg-secondary p-1 rounded-none border">
-                  <button 
-                    onClick={() => setSelectedLang('en')}
-                    className={`px-3 py-1 text-xs font-medium transition-colors ${selectedLang === 'en' ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
-                  >
-                    English
-                  </button>
-                  <button 
-                    onClick={() => setSelectedLang('de')}
-                    className={`px-3 py-1 text-xs font-medium transition-colors ${selectedLang === 'de' ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
-                  >
-                    Deutsch
-                  </button>
+                  {['en', 'de', 'nl'].map((lang) => (
+                    <button 
+                      key={lang}
+                      onClick={() => setSelectedLang(lang)}
+                      className={`px-3 py-1 text-xs font-medium transition-colors ${selectedLang === lang ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
+                    >
+                      {lang === 'en' ? 'English' : lang === 'de' ? 'Deutsch' : 'Nederlands'}
+                    </button>
+                  ))}
                 </div>
               </div>
               <CardDescription>Changes will be visible to customers immediately after saving.</CardDescription>

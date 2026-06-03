@@ -14,7 +14,10 @@ export function usePageContent(slug: string) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
-    fetch(`${import.meta.env.VITE_API_BASE_URL}/pages/${slug}/?lang=${i18n.language}`, {
+    // Normalize language to 2-letter code (e.g., 'en-US' -> 'en')
+    const langCode = (i18n.language || 'en').split('-')[0].toLowerCase();
+
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/pages/${slug}/?lang=${langCode}`, {
       signal: controller.signal
     })
       .then((res) => {
