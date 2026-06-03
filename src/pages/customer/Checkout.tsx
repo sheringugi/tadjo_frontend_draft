@@ -264,10 +264,7 @@ const CheckoutForm = () => {
     } catch (error: any) {
       console.error(error);
       
-      // Safely check for network errors (CORS or server down)
-      const errorMessage = error?.message || "";
-      const isNetErr = errorMessage === "Failed to fetch";
-      
+     
       toast({
         title: "Checkout failed",
         description: isNetErr 
