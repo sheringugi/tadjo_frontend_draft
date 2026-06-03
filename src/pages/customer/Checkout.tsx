@@ -264,13 +264,15 @@ const CheckoutForm = () => {
     } catch (error: any) {
       console.error(error);
       
-      const isNetworkError = error.message === "Failed to fetch";
+      // Safely check for network errors (CORS or server down)
+      const errorMessage = error?.message || "";
+      const isNetErr = errorMessage === "Failed to fetch";
       
       toast({
         title: "Checkout failed",
-        description: isNetworkError 
+        description: isNetErr 
           ? "Could not connect to the server. Your payment may have gone through—please check your email before trying again." 
-          : (error.message || "There was a problem processing your order."),
+          : (errorMessage || "There was a problem processing your order."),
         variant: "destructive"
       });
     } finally {
