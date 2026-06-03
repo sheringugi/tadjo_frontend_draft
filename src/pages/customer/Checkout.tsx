@@ -264,8 +264,7 @@ const CheckoutForm = () => {
     } catch (error: any) {
       console.error(error);
       
-      const isNetworkError = error.message === "Failed to fetch";
-      
+     
       toast({
         title: "Checkout failed",
         description: isNetworkError 
