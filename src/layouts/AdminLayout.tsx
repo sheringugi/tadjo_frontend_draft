@@ -13,6 +13,7 @@ import {
   Folder,
   Star,
   HeartHandshake,
+  FileText,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { adminLogout } from '@/lib/auth';
@@ -23,6 +24,7 @@ const navItems = [
   { to: '/admin/orders', label: 'Orders', icon: ShoppingCart },
   { to: '/admin/products', label: 'Products', icon: Package },
   { to: '/admin/categories', label: 'Categories', icon: Folder },
+  { to: '/admin/content', label: 'Page Content', icon: FileText },
   { to: '/admin/reviews', label: 'Reviews', icon: Star },
   { to: '/admin/contributions', label: 'Contributions', icon: HeartHandshake },
   { to: '/admin/complaints', label: 'Complaints', icon: MessageSquareWarning },

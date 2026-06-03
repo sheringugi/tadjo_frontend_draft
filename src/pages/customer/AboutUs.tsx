@@ -4,21 +4,25 @@ import { Heart, ExternalLink, Leaf, Globe, HandHeart, TrendingUp, BookOpen, Arro
 import { Button } from '@/components/ui/button';
 import tajanaDollar from '@/assets/tajana-dollar.jpg';
 import streetDogs from '@/assets/street-dogs.jpeg';
+import { usePageContent } from '@/hooks/usePageContent';
 
 const AboutUs = () => {
   const { t } = useTranslation('common');
+  const { content, loading } = usePageContent('about');
 
   const missions = [
-    { icon: Heart, title: t('about.mission1Title'), description: t('about.mission1Desc') },
-    { icon: TrendingUp, title: t('about.mission2Title'), description: t('about.mission2Desc') },
-    { icon: BookOpen, title: t('about.mission3Title'), description: t('about.mission3Desc') },
+    { icon: Heart, title: content.mission1_title || t('about.mission1Title'), description: content.mission1_desc || t('about.mission1Desc') },
+    { icon: TrendingUp, title: content.mission2_title || t('about.mission2Title'), description: content.mission2_desc || t('about.mission2Desc') },
+    { icon: BookOpen, title: content.mission3_title || t('about.mission3Title'), description: content.mission3_desc || t('about.mission3Desc') },
   ];
 
   const values = [
-    { icon: HandHeart, title: t('about.value1Title'), description: t('about.value1Desc') },
-    { icon: Leaf, title: t('about.value2Title'), description: t('about.value2Desc') },
-    { icon: Globe, title: t('about.value3Title'), description: t('about.value3Desc') },
+    { icon: HandHeart, title: content.value1_title || t('about.value1Title'), description: content.value1_desc || t('about.value1Desc') },
+    { icon: Leaf, title: content.value2_title || t('about.value2Title'), description: content.value2_desc || t('about.value2Desc') },
+    { icon: Globe, title: content.value3_title || t('about.value3Title'), description: content.value3_desc || t('about.value3Desc') },
   ];
+
+  if (loading) return null;
 
   return (
     <>
@@ -34,12 +38,12 @@ const AboutUs = () => {
                 Our Story
               </p> */}
               <h1 className="text-5xl md:text-6xl font-display font-normal text-foreground mb-6 leading-tight">
-                {t('about.heroHeading')}
+                {content.hero_heading || t('about.heroHeading')}
                 <br />
                
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                {t('about.heroSubheading')}
+                {content.hero_subheading || t('about.heroSubheading')}
               </p>
             </motion.div>
 
@@ -67,24 +71,39 @@ const AboutUs = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
               >
-                <h2 className="text-3xl md:text-4xl font-display text-foreground mb-6">{t('about.storyTitle')}</h2>
+                <h2 className="text-3xl md:text-4xl font-display text-foreground mb-6">{content.story_title || t('about.storyTitle')}</h2>
                 <div className="space-y-4 text-muted-foreground leading-relaxed">
-                  <p>
-                    <Trans i18nKey="about.storyText1" ns="common" components={{ 1: <strong className="text-foreground"/>, 3: <strong className="text-foreground"/> }} />
-                  </p>	
-                  <p>
-                    {t('about.storyText2')}
-                  </p>
-                  <p>
-                    <Trans i18nKey="about.storyText3" ns="common" components={{ 0: <strong className="text-foreground"/> }} />
-                  </p>
-                  <p>
-                    <Trans i18nKey="about.storyText4" ns="common" components={{ 0: <strong className="text-foreground"/> }} />
-                  </p>
-                  <p>
-                    <Trans i18nKey="about.storyText5" ns="common" components={{ 0: <strong className="text-foreground"/> }} />
-                  </p>
-
+                  {content.story_full ? (
+                    <p className="whitespace-pre-wrap">
+                      <Trans 
+                        defaults={content.story_full}
+                        ns="common"
+                        components={{ 
+                          0: <strong className="text-foreground"/>,
+                          1: <strong className="text-foreground"/>, 
+                          3: <strong className="text-foreground"/> 
+                        }} 
+                      />
+                    </p>
+                  ) : (
+                    <>
+                      <p>
+                        <Trans i18nKey="about.storyText1" ns="common" components={{ 1: <strong className="text-foreground"/>, 3: <strong className="text-foreground"/> }} />
+                      </p>	
+                      <p>
+                        {t('about.storyText2')}
+                      </p>
+                      <p>
+                        <Trans i18nKey="about.storyText3" ns="common" components={{ 0: <strong className="text-foreground"/> }} />
+                      </p>
+                      <p>
+                        <Trans i18nKey="about.storyText4" ns="common" components={{ 0: <strong className="text-foreground"/> }} />
+                      </p>
+                      <p>
+                        <Trans i18nKey="about.storyText5" ns="common" components={{ 0: <strong className="text-foreground"/> }} />
+                      </p>
+                    </>
+                  )}
                 </div>
                 <a
                   href="https://tajdo.ch"
@@ -93,7 +112,7 @@ const AboutUs = () => {
                   className="mt-8 inline-block"
                 >
                   <Button variant="outline" className="rounded-none text-xs tracking-luxury uppercase gap-2">
-                    {t('about.buttonVisitRescue')}
+                    {content.button_visit_rescue || t('about.buttonVisitRescue')}
                     <ExternalLink className="w-3 h-3" />
                   </Button>
                 </a>
@@ -126,13 +145,13 @@ const AboutUs = () => {
               className="text-center mb-16"
             >
               <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">
-                {t('about.missionSubheading')}
+                {content.mission_subheading || t('about.missionSubheading')}
               </p>
               <h2 className="text-3xl md:text-4xl font-display text-foreground mb-4">
-                {t('about.missionHeading')}
+                {content.mission_heading || t('about.missionHeading')}
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                {t('about.missionDescription')}
+                {content.mission_description || t('about.missionDescription')}
               </p>
             </motion.div>
 
@@ -168,10 +187,10 @@ const AboutUs = () => {
               className="text-center mb-16"
             >
               <p className="text-xs tracking-wide-luxury uppercase text-muted-foreground mb-4">
-                {t('about.valuesSubheading')}
+                {content.values_subheading || t('about.valuesSubheading')}
               </p>
               <h2 className="text-3xl md:text-4xl font-display text-foreground">
-                {t('about.valuesHeading')}
+                {content.values_heading || t('about.valuesHeading')}
               </h2>
             </motion.div>
 
@@ -206,17 +225,17 @@ const AboutUs = () => {
             >
               <Heart className="w-8 h-8 mx-auto mb-6 opacity-60" />
               <h2 className="text-3xl md:text-4xl font-display mb-6">
-                {t('about.ctaHeading')}
+                {content.cta_heading || t('about.ctaHeading')}
               </h2>
               <p className="text-background/70 leading-relaxed mb-8 max-w-xl mx-auto">
-                {t('about.ctaDescription')}
+                {content.cta_description || t('about.ctaDescription')}
               </p>
               <a href="/products">
                 <Button
                   variant="outline"
                   className="rounded-none text-xs tracking-luxury uppercase bg-background text-foreground border-background/30 hover:bg-foreground hover:text-background"
                 >
-                  {t('about.ctaButton')}
+                  {content.cta_button_text || t('about.ctaButton')}
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </a>

@@ -5,7 +5,16 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import dollar from '@/assets/dollar.png';
 
-const Hero = () => {
+interface HeroProps {
+  subheading?: string;
+  buttonShop?: string;
+  buttonStory?: string;
+  heading1?: string;
+  heading2?: string;
+  description?: string;
+}
+
+const Hero = ({ subheading, buttonShop, buttonStory, heading1, heading2, description }: HeroProps) => {
   const { t } = useTranslation('common');
   return (
     <section className="relative min-h-screen flex items-center pt-24 md:pt-32">
@@ -29,17 +38,17 @@ const Hero = () => {
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           >
             <p className="text-5xl md:text-6xl lg:text-5xl font-display font-normal text-muted-foreground leading-[1.1] mb-6">
-              {t('hero.subheading')}
+              {subheading || t('hero.subheading')}
             </p>
 
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-display font-normal text-foreground leading-[1.1] mb-6">
-              {t('hero.heading1')}
+              {heading1 || t('hero.heading1')}
               <br />
-              {t('hero.heading2')}
+              {heading2 || t('hero.heading2')}
             </h1>
             
             <p className="text-base text-muted-foreground max-w-md mb-10 leading-relaxed">
-              {t('hero.description')}
+              {description || t('hero.description')}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
@@ -48,7 +57,7 @@ const Hero = () => {
                   size="lg" 
                   className="bg-foreground text-background hover:bg-foreground/90 rounded-none px-10 h-12 text-xs tracking-luxury uppercase"
                 >
-                  {t('hero.buttonShop')}
+                  {buttonShop || t('hero.buttonShop')}
                   <ArrowRight className="ml-3 w-4 h-4" />
                 </Button>
               </Link>
@@ -59,7 +68,7 @@ const Hero = () => {
                   variant="outline" 
                   className="border-foreground text-foreground hover:bg-foreground hover:text-background rounded-none px-10 h-12 text-xs tracking-luxury uppercase"
                 >
-                  {t('hero.buttonStory')}
+                  {buttonStory || t('hero.buttonStory')}
                 </Button>
               </Link>
             </div>

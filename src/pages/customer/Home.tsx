@@ -11,10 +11,15 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import rescueDogs from '@/assets/rescue-dogs.jpeg';
 
+// import { useTranslation } from 'react-i18next';
+import { usePageContent } from '@/hooks/usePageContent';
+
+
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useTranslation('common');
+  const { content, loading } = usePageContent('home');
 
   useEffect(() => {
     const loadData = async () => {
@@ -30,9 +35,18 @@ const Home = () => {
     loadData();
   }, []);
 
+  if (loading) return null; // Prevent layout shift/flashing default text
+
   return (
     <>
-      <Hero />
+      <Hero 
+        buttonShop={content.hero_button_shop}
+        buttonStory={content.hero_button_story}
+        subheading={content.hero_subheading}
+        heading1={content.hero_heading1}
+        heading2={content.hero_heading2}
+        description={content.hero_description}
+      />
       {/* <TrustBadges /> */}
       <FeaturedProducts />
 
@@ -77,7 +91,7 @@ const Home = () => {
               Our Philosophy
             </p> */}
             <h2 className="text-4xl md:text-5xl font-display font-normal text-foreground mb-4">
-              {t('home.storyHeading')}
+              {content.story_heading || t('home.storyHeading')}
             </h2>
           </motion.div>
 
@@ -104,19 +118,31 @@ const Home = () => {
               transition={{ duration: 0.6, delay: 0.1 }}
             >
               <div className="space-y-4 text-muted-foreground leading-relaxed">
-                <p>
-                  <Trans 
-                    i18nKey="home.storyText1" 
-                    ns="common"
-                    components={{ 1: <strong />, 3: <strong /> }}
-                  />
-                </p>
-                <p>{t('home.storyText2')}</p>
-                <p>{t('home.storyText3')}</p>
+                {content.story_snippet ? (
+                  <p className="whitespace-pre-wrap">
+                    <Trans 
+                      defaults={content.story_snippet}
+                      ns="common"
+                      components={{ 1: <strong />, 3: <strong /> }}
+                    />
+                  </p>
+                ) : (
+                  <>
+                    <p>
+                      <Trans 
+                        i18nKey="home.storyText1" 
+                        ns="common"
+                        components={{ 1: <strong />, 3: <strong /> }}
+                      />
+                    </p>
+                    <p>{t('home.storyText2')}</p>
+                    <p>{t('home.storyText3')}</p>
+                  </>
+                )}
               </div>
               <Link to="/about" className="mt-8 inline-block">
                 <Button variant="outline" className="rounded-none text-xs tracking-luxury uppercase">
-                  {t('home.storyButton')}
+                  {content.story_button_text || t('home.storyButton')}
                 </Button>
               </Link>
             </motion.div>

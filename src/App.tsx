@@ -14,6 +14,7 @@ import AdminProducts from './pages/admin/Products';
 import AdminProductForm from './pages/admin/ProductForm';
 import AdminCategories from './pages/admin/Categories';
 import AdminReviews from './pages/admin/Reviews';
+import ContentManagement from './pages/admin/ContentManagement';
 import AdminContributions from './pages/admin/Contributions';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 import ProtectedCustomerRoute from './components/ProtectedCustomerRoute';
@@ -78,6 +79,7 @@ function App() {
             <Route path="products/:id" element={<AdminProductForm />} />
             <Route path="categories" element={<AdminCategories />} />
             <Route path="reviews" element={<AdminReviews />} />
+            <Route path="content" element={<ContentManagement />} />
             <Route path="contributions" element={<AdminContributions />} />
             <Route path="complaints" element={<Complaints />} />
             <Route path="returns" element={<AdminReturns />} />
