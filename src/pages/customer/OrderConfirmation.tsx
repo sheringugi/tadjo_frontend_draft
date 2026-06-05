@@ -118,7 +118,7 @@ const OrderConfirmationContent = () => {
                   clearInterval(interval);
                 }
               }
-            }, 5000);
+            }, 30000);
             return () => clearInterval(interval);
           } else {
             setOrderStatus(foundOrder.status);
