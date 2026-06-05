@@ -237,19 +237,24 @@ const CheckoutForm = () => {
             //   navigate('/order-confirmation', { state: { orderId: data.order_number } });
             // }
 
-            if (data.status !== 'pending_payment') {
-            clearInterval(interval);
+          //   if (data.status !== 'pending_payment') {
+          //   clearInterval(interval);
 
-            // ✅ Navigate first, then close the tab after a short delay
-            navigate('/order-confirmation', { state: { orderId: data.order_number } });
+          //   // ✅ Navigate first, then close the tab after a short delay
+          //   navigate('/order-confirmation', { state: { orderId: data.order_number } });
 
-            setTimeout(() => {
-              if (twintTabRef.current && !twintTabRef.current.closed) {
-                twintTabRef.current.close();
-                twintTabRef.current = null;
-              }
-            }, 300);
-          }
+          //   setTimeout(() => {
+          //     if (twintTabRef.current && !twintTabRef.current.closed) {
+          //       twintTabRef.current.close();
+          //       twintTabRef.current = null;
+          //     }
+          //   }, 300);
+          // }
+
+          if (data.status !== 'pending_payment') {
+  clearInterval(interval);
+  navigate('/order-confirmation', { state: { orderId: data.order_number } });
+}
 
           }
         } catch (e) {
@@ -261,49 +266,109 @@ const CheckoutForm = () => {
   }, [twintOrder, formData.email, navigate]);
 
   // ── TWINT STEP 2 VIEW ──────────────────────────────────────────────────────
-  if (twintOrder) {
-    const twintUrl = `https://go.twint.ch/1/e/tw?tw=acq.CEeb5AsGTJC-XG4DVUh3ZbQUFwvQJblSBrQaeQCLPTswCKQm7PSbLYeECDSAU3Id&amount=${twintOrder.total.toFixed(2)}&trxInfo=Order%20${twintOrder.order_number}`;
+  // if (twintOrder) {
+  //   const twintUrl = `https://go.twint.ch/1/e/tw?tw=acq.CEeb5AsGTJC-XG4DVUh3ZbQUFwvQJblSBrQaeQCLPTswCKQm7PSbLYeECDSAU3Id&amount=${twintOrder.total.toFixed(2)}&trxInfo=Order%20${twintOrder.order_number}`;
 
-    return (
-      <div className="pt-24 md:pt-32 pb-24 container mx-auto text-center max-w-lg">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-          <h1 className="text-3xl font-display text-foreground">Order Placed!</h1>
-          <p className="text-muted-foreground">
-            Your order <strong>{twintOrder.order_number}</strong> has been created.
-            <br />
-            Please pay <strong>CHF {twintOrder.total.toFixed(2)}</strong> using the button below.
-          </p>
+  //   return (
+  //     <div className="pt-24 md:pt-32 pb-24 container mx-auto text-center max-w-lg">
+  //       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+  //         <h1 className="text-3xl font-display text-foreground">Order Placed!</h1>
+  //         <p className="text-muted-foreground">
+  //           Your order <strong>{twintOrder.order_number}</strong> has been created.
+  //           <br />
+  //           Please pay <strong>CHF {twintOrder.total.toFixed(2)}</strong> using the button below.
+  //         </p>
 
-          <div className="flex justify-center mb-4">
-            <button
-              onClick={() => {
-                // ✅ Open TWINT in new tab and store the reference
-                twintTabRef.current = window.open(twintUrl, '_blank');
+  //         <div className="flex justify-center mb-4">
+  //           <button
+  //             onClick={() => {
+  //               // ✅ Open TWINT in new tab and store the reference
+  //               twintTabRef.current = window.open(twintUrl, '_blank');
+  //             }}
+  //             className="flex items-center justify-center cursor-pointer bg-transparent border-none p-0 transition-opacity hover:opacity-90"
+  //             title="Pay with TWINT"
+  //           >
+  //             <div className="relative">
+  //               <img
+  //                 style={{ height: '58px', width: '220px' }}
+  //                 alt="Pay with TWINT"
+  //                 src="https://go.twint.ch/static/img/button_dark_en.svg"
+  //                 onError={(e) => {
+  //                   e.currentTarget.style.display = 'none';
+  //                   e.currentTarget.parentElement!.innerHTML = '<div class="bg-[#000] text-white px-8 py-4 rounded-md font-bold">PAY WITH TWINT</div>';
+  //                 }}
+  //               />
+  //             </div>
+  //           </button>
+  //         </div>
+
+  //         <p className="text-xs text-muted-foreground">
+  //           Complete your payment in the TWINT tab. This page will update automatically and the payment tab will close once confirmed.
+  //         </p>
+  //       </motion.div>
+  //     </div>
+  //   );
+  // }
+
+// ── TWINT STEP 2 VIEW ──────────────────────────────────────────────────────
+if (twintOrder) {
+  const twintUrl = `https://go.twint.ch/1/e/tw?tw=acq.CEeb5AsGTJC-XG4DVUh3ZbQUFwvQJblSBrQaeQCLPTswCKQm7PSbLYeECDSAU3Id&amount=${twintOrder.total.toFixed(2)}&trxInfo=Order%20${twintOrder.order_number}`;
+  const [showIframe, setShowIframe] = useState(false);
+
+  return (
+    <div className="pt-24 md:pt-32 pb-24 container mx-auto text-center max-w-lg">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
+        <h1 className="text-3xl font-display text-foreground">Order Placed!</h1>
+        <p className="text-muted-foreground">
+          Your order <strong>{twintOrder.order_number}</strong> has been created.
+          <br />
+          Please pay <strong>CHF {twintOrder.total.toFixed(2)}</strong> using the button below.
+        </p>
+
+        <div className="flex justify-center mb-4">
+          <button
+            onClick={() => setShowIframe(true)}
+            className="flex items-center justify-center cursor-pointer bg-transparent border-none p-0 transition-opacity hover:opacity-90"
+            title="Pay with TWINT"
+          >
+            <img
+              style={{ height: '58px', width: '220px' }}
+              alt="Pay with TWINT"
+              src="https://go.twint.ch/static/img/button_dark_en.svg"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.parentElement!.innerHTML = '<div class="bg-[#000] text-white px-8 py-4 rounded-md font-bold">PAY WITH TWINT</div>';
               }}
-              className="flex items-center justify-center cursor-pointer bg-transparent border-none p-0 transition-opacity hover:opacity-90"
-              title="Pay with TWINT"
-            >
-              <div className="relative">
-                <img
-                  style={{ height: '58px', width: '220px' }}
-                  alt="Pay with TWINT"
-                  src="https://go.twint.ch/static/img/button_dark_en.svg"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.parentElement!.innerHTML = '<div class="bg-[#000] text-white px-8 py-4 rounded-md font-bold">PAY WITH TWINT</div>';
-                  }}
-                />
-              </div>
-            </button>
-          </div>
+            />
+          </button>
+        </div>
 
-          <p className="text-xs text-muted-foreground">
-            Complete your payment in the TWINT tab. This page will update automatically and the payment tab will close once confirmed.
-          </p>
-        </motion.div>
-      </div>
-    );
-  }
+        <p className="text-xs text-muted-foreground">
+          Complete your payment in the TWINT window. This page will update automatically once confirmed.
+        </p>
+      </motion.div>
+
+      {/* TWINT iframe modal */}
+      {showIframe && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="relative bg-white w-full max-w-lg h-[600px] rounded-lg overflow-hidden shadow-2xl">
+            <button
+              onClick={() => setShowIframe(false)}
+              className="absolute top-3 right-3 z-10 text-gray-500 hover:text-gray-800 text-xl font-bold"
+            >
+              ✕
+            </button>
+            <iframe
+              src={twintUrl}
+              className="w-full h-full border-none"
+              title="TWINT Payment"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
   // ── MAIN CHECKOUT FORM ─────────────────────────────────────────────────────
   return (
