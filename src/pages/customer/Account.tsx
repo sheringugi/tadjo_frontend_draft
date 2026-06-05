@@ -173,6 +173,19 @@ const Account = () => {
     }
   };
 
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!window.confirm("Are you sure you want to cancel and delete this unpaid order?")) return;
+    try {
+      const res = await customerFetch(`/orders/${orderId}`, { method: 'DELETE' });
+      if (res.ok || res.status === 204) {
+        setOrders(prev => prev.filter(o => o.id !== orderId));
+        toast({ title: "Order deleted", description: "The unpaid order has been removed." });
+      }
+    } catch (error) {
+      toast({ title: "Delete failed", description: "Could not delete order.", variant: "destructive" });
+    }
+  };
+
   const handleMarkAsRead = async (notificationId: string) => {
     try {
       const res = await customerFetch(`/notifications/${notificationId}/read`, { method: 'PUT' });
@@ -278,12 +291,17 @@ const Account = () => {
                             {order.created_at ? new Date(order.created_at).toLocaleDateString() : ''} • CHF {Number(order.total).toFixed(2)}
                           </p>
                         </div>
+                      <div className="flex gap-2">
                         <Button 
                           onClick={() => window.open(getTwintUrl(order), '_blank')}
-                          className="rounded-none bg-foreground text-background text-xs tracking-luxury uppercase h-10 px-8"
+                          className="rounded-none bg-foreground text-background text-xs tracking-luxury uppercase h-10 px-8 flex-1 md:flex-none"
                         >
                           Complete Payment (TWINT)
                         </Button>
+                        <Button variant="outline" size="icon" className="h-10 w-10 border-destructive/20 text-destructive hover:bg-destructive hover:text-destructive-foreground rounded-none" onClick={() => handleDeleteOrder(order.id)} title="Cancel order">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                       </div>
                     ))}
                   </div>
@@ -392,10 +410,13 @@ const Account = () => {
                     <div className="flex gap-2">
                       <Button 
                         onClick={() => window.open(getTwintUrl(order), '_blank')}
-                        className="rounded-none bg-foreground text-background text-xs tracking-luxury uppercase h-10 px-8"
+                      className="rounded-none bg-foreground text-background text-xs tracking-luxury uppercase h-10 px-8 flex-1 md:flex-none"
                       >
                         Pay with TWINT
                       </Button>
+                    <Button variant="outline" size="icon" className="h-10 w-10 border-destructive/20 text-destructive hover:bg-destructive hover:text-destructive-foreground rounded-none" onClick={() => handleDeleteOrder(order.id)} title="Cancel order">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                     </div>
                   </div>
                 ))}
