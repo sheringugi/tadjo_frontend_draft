@@ -105,6 +105,15 @@ const CheckoutForm = () => {
 
     setIsProcessing(true);
 
+    // ✅ SAVE: Store order data for redirect recovery (e.g., 3D Secure or Page Refresh)
+    const pendingOrderData = {
+      address: { line1: formData.address, city: formData.city, postal_code: formData.zip, country: 'CH' },
+      items: cartItems.map(item => ({ product_id: item.product.id, quantity: item.quantity })),
+      paymentMethod: paymentMethod,
+      email: formData.email // Needed for polling on return
+    };
+    sessionStorage.setItem('pending_order_data', JSON.stringify(pendingOrderData));
+
     try {
       const user = await getCurrentUser();
 
@@ -189,7 +198,8 @@ const CheckoutForm = () => {
                 country: 'CH'
               }
             }
-          }
+          },
+          return_url: `${window.location.origin}/order-confirmation`
         });
 
       // ============================================

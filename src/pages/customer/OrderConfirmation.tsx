@@ -26,13 +26,15 @@ const OrderConfirmationContent = () => {
   const [orderStatus, setOrderStatus] = useState<string | null>(null);
 
   useEffect(() => {
+    let interval: any;
+
     const handleOrderProcessing = async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const clientSecret = urlParams.get('payment_intent_client_secret');
       const paymentIntentId = urlParams.get('payment_intent');
       const urlOrderNumber = urlParams.get('order_number');
 
-      // Case 1: Returning from Twint (Redirect)
+      // Case 1: Returning from Stripe/Redirect (3D Secure)
       if (clientSecret && stripe) {
         try {
           const { paymentIntent, error } = await stripe.retrievePaymentIntent(clientSecret);
@@ -44,7 +46,7 @@ const OrderConfirmationContent = () => {
           const orderDataStr = sessionStorage.getItem('pending_order_data');
           if (!orderDataStr) throw new Error('Order data missing');
           
-          const { address, items } = JSON.parse(orderDataStr);
+          const { address, items, paymentMethod } = JSON.parse(orderDataStr);
           const user = await getCurrentUser();
 
           // Create Address
@@ -63,7 +65,7 @@ const OrderConfirmationContent = () => {
             body: JSON.stringify({
               user_id: user.id,
               shipping_address_id: savedAddress.id,
-              payment_method: 'twint',
+              payment_method: paymentMethod || 'card',
               payment_intent_id: paymentIntentId,
               items
             })
@@ -106,8 +108,8 @@ const OrderConfirmationContent = () => {
           
           if (foundOrder.status === 'pending_payment') {
             setOrderStatus('pending_payment');
-            // Keep isProcessing true and poll
-            const interval = setInterval(async () => {
+            // Keep isProcessing true and poll faster
+            interval = setInterval(async () => {
               const pollRes = await customerFetch(`/users/${user.id}/orders/`);
               if (pollRes.ok) {
                 const pollData = await pollRes.json();
@@ -118,8 +120,8 @@ const OrderConfirmationContent = () => {
                   clearInterval(interval);
                 }
               }
-            }, 30000);
-            return () => clearInterval(interval);
+            }, 5000);
+            return;
           } else {
             setOrderStatus(foundOrder.status);
           }
@@ -143,6 +145,8 @@ const OrderConfirmationContent = () => {
     };
 
     handleOrderProcessing();
+
+    return () => { if (interval) clearInterval(interval); };
   }, [stripe, location, navigate, toast]);
 
   if (isProcessing) {
