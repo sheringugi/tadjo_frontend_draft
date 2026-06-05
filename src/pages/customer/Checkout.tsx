@@ -224,18 +224,33 @@ const CheckoutForm = () => {
           );
           if (res.ok) {
             const data = await res.json();
-            if (data.status !== 'pending_payment') {
-              clearInterval(interval);
+            // if (data.status !== 'pending_payment') {
+            //   clearInterval(interval);
 
-              // ✅ Close the TWINT tab if it's still open
+            //   // ✅ Close the TWINT tab if it's still open
+            //   if (twintTabRef.current && !twintTabRef.current.closed) {
+            //     window.focus();
+            //     twintTabRef.current.close();
+            //     twintTabRef.current = null;
+            //   }
+
+            //   navigate('/order-confirmation', { state: { orderId: data.order_number } });
+            // }
+
+            if (data.status !== 'pending_payment') {
+            clearInterval(interval);
+
+            // ✅ Navigate first, then close the tab after a short delay
+            navigate('/order-confirmation', { state: { orderId: data.order_number } });
+
+            setTimeout(() => {
               if (twintTabRef.current && !twintTabRef.current.closed) {
-                window.focus();
                 twintTabRef.current.close();
                 twintTabRef.current = null;
               }
+            }, 300);
+          }
 
-              navigate('/order-confirmation', { state: { orderId: data.order_number } });
-            }
           }
         } catch (e) {
           console.error("Polling for payment status failed", e);
