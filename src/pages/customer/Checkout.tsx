@@ -229,6 +229,7 @@ const CheckoutForm = () => {
 
               // ✅ Close the TWINT tab if it's still open
               if (twintTabRef.current && !twintTabRef.current.closed) {
+                window.focus();
                 twintTabRef.current.close();
                 twintTabRef.current = null;
               }
