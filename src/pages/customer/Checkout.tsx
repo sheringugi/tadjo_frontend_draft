@@ -34,6 +34,7 @@ const CheckoutForm = () => {
     zip: '',
   });
   const [twintOrder, setTwintOrder] = useState<{ order_number: string, total: number } | null>(null);
+  const [showIframe, setShowIframe] = useState(false);
 
   // ✅ NEW: ref to track the opened TWINT tab
   const twintTabRef = useRef<Window | null>(null);
@@ -313,7 +314,7 @@ const CheckoutForm = () => {
 // ── TWINT STEP 2 VIEW ──────────────────────────────────────────────────────
 if (twintOrder) {
   const twintUrl = `https://go.twint.ch/1/e/tw?tw=acq.CEeb5AsGTJC-XG4DVUh3ZbQUFwvQJblSBrQaeQCLPTswCKQm7PSbLYeECDSAU3Id&amount=${twintOrder.total.toFixed(2)}&trxInfo=Order%20${twintOrder.order_number}`;
-  const [showIframe, setShowIframe] = useState(false);
+  
 
   return (
     <div className="pt-24 md:pt-32 pb-24 container mx-auto text-center max-w-lg">
