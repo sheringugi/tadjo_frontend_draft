@@ -33,8 +33,8 @@ import TrainingPage from './pages/customer/Training';
 import ForgotPassword from './pages/customer/ForgotPassword';
 import ResetPassword from './pages/customer/ResetPassword';
 import AdminTwintPayments from './pages/admin/AdminTwintPayments';
-
 import AdminCardPayments from './pages/admin/AdminCardPayments';
+
 function App() {
   return (
     // <BrowserRouter>
