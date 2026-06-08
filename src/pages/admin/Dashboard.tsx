@@ -76,10 +76,17 @@ const Dashboard = () => {
   };
 
   const formatCurrency = (amount: number, currency: string) => {
+    if (amount === undefined || amount === null) return 'CHF 0.00';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency.toUpperCase(),
     }).format(amount / 100);
+  };
+
+  const renderStripeBalance = (type: 'available' | 'pending') => {
+    const items = balance?.[type];
+    if (!items || !Array.isArray(items) || items.length === 0) return 'CHF 0.00';
+    return items.map((b: any) => formatCurrency(b.amount, b.currency)).join(', ');
   };
 
   return (
@@ -98,7 +105,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? '...' : balance?.available?.map((b: any) => formatCurrency(b.amount, b.currency)).join(', ') || 'CHF 0.00'}
+              {loading ? '...' : renderStripeBalance('available')}
             </div>
             <div className="flex items-center justify-between mt-1">
               <p className="text-xs text-muted-foreground">Ready to pay out</p>
@@ -116,7 +123,7 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? '...' : balance?.pending?.map((b: any) => formatCurrency(b.amount, b.currency)).join(', ') || 'CHF 0.00'}
+              {loading ? '...' : renderStripeBalance('pending')}
             </div>
             <div className="flex items-center justify-between mt-1">
               <p className="text-xs text-muted-foreground">Future payouts</p>
