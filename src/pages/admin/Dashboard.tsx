@@ -18,7 +18,7 @@ interface Order {
 
 const Dashboard = () => {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [balance, setBalance] = useState<any>(null);
+  const [cardBalance, setCardBalance] = useState<number>(0); // State for database-derived card balance
   const [twintBalance, setTwintBalance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
@@ -26,8 +26,8 @@ const Dashboard = () => {
     const loadData = async () => {
       try {
         const [ordersRes, balanceRes, twintRes] = await Promise.all([
-          adminFetch('/admin/orders/'),
-          adminFetch('/payments/admin/stripe-balance'),
+          adminFetch('/admin/orders/'), // Keep fetching orders for general stats
+          adminFetch('/admin/payments/card/balance'), // Fetch database-derived card balance
           adminFetch('/admin/payments/twint/balance')
         ]);
 
@@ -36,9 +36,9 @@ const Dashboard = () => {
           setOrders(Array.isArray(ordersData) ? ordersData : []);
         }
 
-        if (balanceRes.ok) {
-          const balanceData = await balanceRes.json();
-          setBalance(balanceData);
+        if (balanceRes.ok) { // This is now the card balance from our DB
+          const cardBalanceData = await balanceRes.json();
+          setCardBalance(cardBalanceData.total_confirmed_card_revenue);
         }
 
         if (twintRes.ok) {
@@ -75,18 +75,8 @@ const Dashboard = () => {
     }
   };
 
-  const formatCurrency = (amount: number, currency: string) => {
-    if (amount === undefined || amount === null) return 'CHF 0.00';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency.toUpperCase(),
-    }).format(amount / 100);
-  };
-
-  const renderStripeBalance = (type: 'available' | 'pending') => {
-    const items = balance?.[type];
-    if (!items || !Array.isArray(items) || items.length === 0) return 'CHF 0.00';
-    return items.map((b: any) => formatCurrency(b.amount, b.currency)).join(', ');
+  const formatCurrency = (amount: number) => {
+    return `CHF ${amount.toFixed(2)}`;
   };
 
   return (
@@ -98,35 +88,17 @@ const Dashboard = () => {
 
       {/* Financial Balances Section */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-border rounded-none">
+        <Card className="border-border rounded-none bg-primary/10">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Available Balance (Stripe)</CardTitle>
+            <CardTitle className="text-sm font-medium">Confirmed Card Payments</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? '...' : renderStripeBalance('available')}
+              {loading ? '...' : formatCurrency(cardBalance)}
             </div>
             <div className="flex items-center justify-between mt-1">
-              <p className="text-xs text-muted-foreground">Ready to pay out</p>
-              <Link to="/admin/card" className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
-                View all <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border rounded-none">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Balance (Stripe)</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? '...' : renderStripeBalance('pending')}
-            </div>
-            <div className="flex items-center justify-between mt-1">
-              <p className="text-xs text-muted-foreground">Future payouts</p>
+              <p className="text-xs text-muted-foreground">Total paid via card</p>
               <Link to="/admin/card" className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
                 View all <ArrowRight className="w-3 h-3" />
               </Link>
