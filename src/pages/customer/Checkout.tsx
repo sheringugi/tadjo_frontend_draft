@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { getCart, getCartTotal, clearCart, CartItem } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { getCurrentUser, customerFetch } from '@/lib/auth';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 import {
   CardNumberElement,
@@ -34,7 +35,6 @@ const CheckoutForm = () => {
     zip: '',
   });
   const [twintOrder, setTwintOrder] = useState<{ order_number: string, total: number } | null>(null);
-  const [showIframe, setShowIframe] = useState(false);
 
   // ✅ NEW: ref to track the opened TWINT tab
   const twintTabRef = useRef<Window | null>(null);
@@ -238,134 +238,72 @@ const CheckoutForm = () => {
             //   navigate('/order-confirmation', { state: { orderId: data.order_number } });
             // }
 
-          //   if (data.status !== 'pending_payment') {
-          //   clearInterval(interval);
-
-          //   // ✅ Navigate first, then close the tab after a short delay
-          //   navigate('/order-confirmation', { state: { orderId: data.order_number } });
-
-          //   setTimeout(() => {
-          //     if (twintTabRef.current && !twintTabRef.current.closed) {
-          //       twintTabRef.current.close();
-          //       twintTabRef.current = null;
-          //     }
-          //   }, 300);
-          // }
-
           if (data.status !== 'pending_payment') {
-  clearInterval(interval);
-  navigate('/order-confirmation', { state: { orderId: data.order_number } });
-}
-
+            clearInterval(interval);
+            // Close the TWINT tab if it was opened
+            if (twintTabRef.current && !twintTabRef.current.closed) {
+              twintTabRef.current.close();
+              twintTabRef.current = null;
+            }
+            setTwintOrder(null); // Close the modal
+            navigate('/order-confirmation', { state: { orderId: data.order_number } });
+          }
           }
         } catch (e) {
           console.error("Polling for payment status failed", e);
         }
       }, 5000);
     }
-    return () => clearInterval(interval);
+    return () => { if (interval) clearInterval(interval); };
   }, [twintOrder, formData.email, navigate]);
-
-  // ── TWINT STEP 2 VIEW ──────────────────────────────────────────────────────
-  // if (twintOrder) {
-  //   const twintUrl = `https://go.twint.ch/1/e/tw?tw=acq.CEeb5AsGTJC-XG4DVUh3ZbQUFwvQJblSBrQaeQCLPTswCKQm7PSbLYeECDSAU3Id&amount=${twintOrder.total.toFixed(2)}&trxInfo=Order%20${twintOrder.order_number}`;
-
-  //   return (
-  //     <div className="pt-24 md:pt-32 pb-24 container mx-auto text-center max-w-lg">
-  //       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-  //         <h1 className="text-3xl font-display text-foreground">Order Placed!</h1>
-  //         <p className="text-muted-foreground">
-  //           Your order <strong>{twintOrder.order_number}</strong> has been created.
-  //           <br />
-  //           Please pay <strong>CHF {twintOrder.total.toFixed(2)}</strong> using the button below.
-  //         </p>
-
-  //         <div className="flex justify-center mb-4">
-  //           <button
-  //             onClick={() => {
-  //               // ✅ Open TWINT in new tab and store the reference
-  //               twintTabRef.current = window.open(twintUrl, '_blank');
-  //             }}
-  //             className="flex items-center justify-center cursor-pointer bg-transparent border-none p-0 transition-opacity hover:opacity-90"
-  //             title="Pay with TWINT"
-  //           >
-  //             <div className="relative">
-  //               <img
-  //                 style={{ height: '58px', width: '220px' }}
-  //                 alt="Pay with TWINT"
-  //                 src="https://go.twint.ch/static/img/button_dark_en.svg"
-  //                 onError={(e) => {
-  //                   e.currentTarget.style.display = 'none';
-  //                   e.currentTarget.parentElement!.innerHTML = '<div class="bg-[#000] text-white px-8 py-4 rounded-md font-bold">PAY WITH TWINT</div>';
-  //                 }}
-  //               />
-  //             </div>
-  //           </button>
-  //         </div>
-
-  //         <p className="text-xs text-muted-foreground">
-  //           Complete your payment in the TWINT tab. This page will update automatically and the payment tab will close once confirmed.
-  //         </p>
-  //       </motion.div>
-  //     </div>
-  //   );
-  // }
 
 // ── TWINT STEP 2 VIEW ──────────────────────────────────────────────────────
 if (twintOrder) {
   const twintUrl = `https://go.twint.ch/1/e/tw?tw=acq.CEeb5AsGTJC-XG4DVUh3ZbQUFwvQJblSBrQaeQCLPTswCKQm7PSbLYeECDSAU3Id&amount=${twintOrder.total.toFixed(2)}&trxInfo=Order%20${twintOrder.order_number}`;
-  
-
   return (
-    <div className="pt-24 md:pt-32 pb-24 container mx-auto text-center max-w-lg">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-        <h1 className="text-3xl font-display text-foreground">Order Placed!</h1>
-        <p className="text-muted-foreground">
-          Your order <strong>{twintOrder.order_number}</strong> has been created.
-          <br />
-          Please pay <strong>CHF {twintOrder.total.toFixed(2)}</strong> using the button below.
-        </p>
+    <AnimatePresence>
+      <Dialog open={!!twintOrder} onOpenChange={(open) => !open && setTwintOrder(null)}>
+        <DialogContent className="sm:max-w-[425px] rounded-none border-border p-6">
+          <DialogHeader className="text-center">
+            <DialogTitle className="text-2xl font-display text-foreground">Complete TWINT Payment</DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              Your order <strong>{twintOrder.order_number}</strong> has been created.
+              <br />
+              Please pay <strong>CHF {twintOrder.total.toFixed(2)}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center space-y-6 py-4">
+            {/* QR Code for Desktop */}
+            <div className="text-center">
+              <p className="text-sm font-medium mb-2">Scan with your TWINT app</p>
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(twintUrl)}`}
+                alt="TWINT QR Code"
+                className="w-48 h-48 mx-auto border border-border p-2"
+              />
+            </div>
 
-        <div className="flex justify-center mb-4">
-          <button
-            onClick={() => setShowIframe(true)}
-            className="flex items-center justify-center cursor-pointer bg-transparent border-none p-0 transition-opacity hover:opacity-90"
-            title="Pay with TWINT"
-          >
-            <img
-              style={{ height: '58px', width: '220px' }}
-              alt="Pay with TWINT"
-              src="https://go.twint.ch/static/img/button_dark_en.svg"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = '<div class="bg-[#000] text-white px-8 py-4 rounded-md font-bold">PAY WITH TWINT</div>';
-              }}
-            />
-          </button>
-        </div>
-
-        <p className="text-xs text-muted-foreground">
-          Complete your payment in the TWINT window. This page will update automatically once confirmed.
-        </p>
-      </motion.div>
-
-      {/* TWINT iframe modal */}
-      {showIframe && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="relative bg-white w-full max-w-lg h-[600px] rounded-lg overflow-hidden shadow-2xl">
-            <button
-              onClick={() => setShowIframe(false)}
-              className="absolute top-3 right-3 z-10 text-gray-500 hover:text-gray-800 text-xl font-bold"
-            >
-              ✕
-            </button>
-            <iframe
-              src={twintUrl}
-              className="w-full h-full border-none"
-              title="TWINT Payment"
-            />
+            {/* Direct Link for Mobile */}
+            <div className="text-center w-full">
+              <p className="text-sm font-medium mb-2">Or click below on your phone</p>
+              <Button
+                onClick={() => {
+                  twintTabRef.current = window.open(twintUrl, '_blank');
+                }}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-none h-12 text-base"
+              >
+                Open TWINT App
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                (This will open the TWINT app or payment page in a new tab)
+              </p>
+            </div>
           </div>
-        </div>
+          <p className="text-xs text-center text-muted-foreground mt-4">
+            This window will close automatically once your payment is confirmed.
+          </p>
+        </DialogContent>
+      </Dialog>
       )}
     </div>
   );
