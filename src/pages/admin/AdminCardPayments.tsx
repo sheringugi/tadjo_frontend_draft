@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { CreditCard, List, XCircle } from 'lucide-react';
+import { CreditCard, List, XCircle, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -25,10 +25,33 @@ interface CardTransaction {
 }
 
 const AdminCardPayments = () => {
+  const [totalBalance, setTotalBalance] = useState<number | null>(null);
   const [transactions, setTransactions] = useState<CardTransaction[]>([]);
   const [showTransactions, setShowTransactions] = useState(false);
+  const [isLoadingBalance, setIsLoadingBalance] = useState(true);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
   const { toast } = useToast();
+
+  // Fetch total confirmed Card balance on component mount
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const res = await adminFetch('/admin/payments/card/balance');
+        const data = await res.json();
+        setTotalBalance(data.total_confirmed_card_revenue);
+      } catch (error: any) {
+        console.error('Failed to fetch Card balance:', error);
+        toast({
+          title: 'Error',
+          description: `Failed to load Card balance: ${error.message}`,
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoadingBalance(false);
+      }
+    };
+    fetchBalance();
+  }, [toast]);
 
   const handleViewTransactions = async () => {
     if (showTransactions) {
@@ -67,6 +90,23 @@ const AdminCardPayments = () => {
           <span className="text-sm font-medium">Stripe Verified</span>
         </div>
       </div>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">
+            Total Confirmed Card Revenue
+          </CardTitle>
+          <DollarSign className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">
+            {isLoadingBalance ? 'Loading...' : `CHF ${totalBalance?.toFixed(2) || '0.00'}`}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Sum of all successfully confirmed card orders.
+          </p>
+        </CardContent>
+      </Card>
 
       <Button
         onClick={handleViewTransactions}
