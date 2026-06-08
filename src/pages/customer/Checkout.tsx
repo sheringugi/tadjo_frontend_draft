@@ -304,8 +304,7 @@ if (twintOrder) {
           </p>
         </DialogContent>
       </Dialog>
-      )}
-    </div>
+    </AnimatePresence>
   );
 }
 
