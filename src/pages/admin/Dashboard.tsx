@@ -100,7 +100,12 @@ const Dashboard = () => {
             <div className="text-2xl font-bold">
               {loading ? '...' : balance?.available?.map((b: any) => formatCurrency(b.amount, b.currency)).join(', ') || 'CHF 0.00'}
             </div>
-            <p className="text-xs text-muted-foreground">Ready to pay out</p>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-xs text-muted-foreground">Ready to pay out</p>
+              <Link to="/admin/card" className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
+                View all <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
           </CardContent>
         </Card>
 
@@ -113,7 +118,12 @@ const Dashboard = () => {
             <div className="text-2xl font-bold">
               {loading ? '...' : balance?.pending?.map((b: any) => formatCurrency(b.amount, b.currency)).join(', ') || 'CHF 0.00'}
             </div>
-            <p className="text-xs text-muted-foreground">Future payouts</p>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-xs text-muted-foreground">Future payouts</p>
+              <Link to="/admin/card" className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
+                View all <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
           </CardContent>
         </Card>
 
