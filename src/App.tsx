@@ -32,6 +32,7 @@ import OrderTracking from './pages/customer/OrderTracking';
 import TrainingPage from './pages/customer/Training';
 import ForgotPassword from './pages/customer/ForgotPassword';
 import ResetPassword from './pages/customer/ResetPassword';
+import AdminTwintPayments from './pages/admin/AdminTwintPayments';
 
 function App() {
   return (
@@ -83,6 +84,7 @@ function App() {
             <Route path="contributions" element={<AdminContributions />} />
             <Route path="complaints" element={<Complaints />} />
             <Route path="returns" element={<AdminReturns />} />
+            <Route path="twint" element={<AdminTwintPayments />} />
           </Route>
         </Route>
       </Routes>

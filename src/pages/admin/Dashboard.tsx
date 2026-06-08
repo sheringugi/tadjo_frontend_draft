@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Clock, TrendingUp, DollarSign, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Clock, TrendingUp, DollarSign, ArrowRight, SmartphoneNfc } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { adminFetch } from '@/lib/auth';
@@ -19,14 +19,16 @@ interface Order {
 const Dashboard = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [balance, setBalance] = useState<any>(null);
+  const [twintBalance, setTwintBalance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [ordersRes, balanceRes] = await Promise.all([
+        const [ordersRes, balanceRes, twintRes] = await Promise.all([
           adminFetch('/admin/orders/'),
-          adminFetch('/payments/admin/stripe-balance')
+          adminFetch('/payments/admin/stripe-balance'),
+          adminFetch('/admin/payments/twint/balance')
         ]);
 
         if (ordersRes.ok) {
@@ -37,6 +39,11 @@ const Dashboard = () => {
         if (balanceRes.ok) {
           const balanceData = await balanceRes.json();
           setBalance(balanceData);
+        }
+
+        if (twintRes.ok) {
+          const twintData = await twintRes.json();
+          setTwintBalance(twintData.total_confirmed_twint_revenue);
         }
       } catch (error) {
         console.error(error);
@@ -82,8 +89,8 @@ const Dashboard = () => {
         <p className="text-sm text-slate-500">Overview of your store performance</p>
       </div>
 
-      {/* Stripe Balance Section */}
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Financial Balances Section */}
+      <div className="grid gap-4 md:grid-cols-3">
         <Card className="border-border rounded-none">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Available Balance (Stripe)</CardTitle>
@@ -107,6 +114,24 @@ const Dashboard = () => {
               {loading ? '...' : balance?.pending?.map((b: any) => formatCurrency(b.amount, b.currency)).join(', ') || 'CHF 0.00'}
             </div>
             <p className="text-xs text-muted-foreground">Future payouts</p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border rounded-none bg-secondary/20">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Confirmed TWINT</CardTitle>
+            <SmartphoneNfc className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {loading ? '...' : `CHF ${twintBalance.toFixed(2)}`}
+            </div>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-xs text-muted-foreground">Successfully parsed payments</p>
+              <Link to="/admin/twint" className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
+                View all <ArrowRight className="w-3 h-3" />
+              </Link>
+            </div>
           </CardContent>
         </Card>
       </div>
