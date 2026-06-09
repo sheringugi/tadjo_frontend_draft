@@ -34,6 +34,7 @@ import ForgotPassword from './pages/customer/ForgotPassword';
 import ResetPassword from './pages/customer/ResetPassword';
 import AdminTwintPayments from './pages/admin/AdminTwintPayments';
 import AdminCardPayments from './pages/admin/AdminCardPayments';
+import UserManagement from './pages/admin/UserManagement';
 
 function App() {
   return (
@@ -87,6 +88,7 @@ function App() {
             <Route path="returns" element={<AdminReturns />} />
             <Route path="twint" element={<AdminTwintPayments />} />
             <Route path="card" element={<AdminCardPayments />} />
+            <Route path="users" element={<UserManagement />} />
           </Route>
         </Route>
       </Routes>

@@ -14,6 +14,7 @@ import {
   Star,
   HeartHandshake,
   FileText,
+  PersonStanding,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { adminLogout } from '@/lib/auth';
@@ -29,6 +30,7 @@ const navItems = [
   { to: '/admin/contributions', label: 'Contributions', icon: HeartHandshake },
   { to: '/admin/complaints', label: 'Feedback', icon: MessageSquareWarning },
   { to: '/admin/returns', label: 'Returns', icon: RotateCcw },
+  { to: '/admin/users', label: 'Users', icon: PersonStanding },
 ];
 
 const AdminLayout = () => {
