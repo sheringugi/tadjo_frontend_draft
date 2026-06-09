@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Crown } from 'lucide-react'; // Assuming lucide-react is available for icons
+import { User, Crown, UserMinus, Trash2 } from 'lucide-react'; // Assuming lucide-react is available for icons
 import { adminFetch } from '@/lib/auth'; // Assuming adminFetch handles auth headers
 import { toast } from 'sonner'; // Assuming sonner for toasts
 
@@ -16,6 +16,7 @@ const UserManagement = () => {
   const [adminUsers, setAdminUsers] = useState<AppUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [promotingUserId, setPromotingUserId] = useState<string | null>(null);
+  const [actionInProgress, setActionInProgress] = useState<string | null>(null);
 
   const fetchUsers = async () => {
     try {
@@ -82,6 +83,62 @@ const UserManagement = () => {
     }
   };
 
+  const handleDemoteAdmin = async (user: AppUser) => {
+    if (user.role !== 'admin') return;
+
+    const confirmed = window.confirm(`Are you sure you want to demote ${user.full_name} (${user.email}) to customer?`);
+    if (!confirmed) return;
+
+    setActionInProgress(user.id);
+    try {
+      const res = await adminFetch('/admin/users/demote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: user.email }),
+      });
+
+      if (res.ok) {
+        toast.success(`${user.full_name} has been demoted to customer.`);
+        fetchUsers();
+      } else {
+        const errorData = await res.json();
+        toast.error(`Failed to demote user: ${errorData.detail || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error demoting user:', error);
+      toast.error('An error occurred while demoting the user.');
+    } finally {
+      setActionInProgress(null);
+    }
+  };
+
+  const handleDeleteUser = async (user: AppUser) => {
+    const confirmed = window.confirm(`PERMANENT ACTION: Are you sure you want to delete user ${user.full_name} (${user.email})? This cannot be undone.`);
+    if (!confirmed) return;
+
+    setActionInProgress(user.id);
+    try {
+      const res = await adminFetch(`/admin/users/${user.id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        toast.success(`User ${user.full_name} has been deleted.`);
+        fetchUsers();
+      } else {
+        const errorData = await res.json();
+        toast.error(`Failed to delete user: ${errorData.detail || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error('An error occurred while deleting the user.');
+    } finally {
+      setActionInProgress(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -113,6 +170,7 @@ const UserManagement = () => {
                 <th className="p-4">Full Name</th>
                 <th className="p-4">Email</th>
                 <th className="p-4">Joined</th>
+                <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -122,11 +180,21 @@ const UserManagement = () => {
                     <td className="p-4">{user.full_name}</td>
                     <td className="p-4 font-mono text-xs">{user.email}</td>
                     <td className="p-4 text-muted-foreground">{new Date(user.created_at).toLocaleDateString()}</td>
+                    <td className="p-4 text-right">
+                      <button
+                        onClick={() => handleDemoteAdmin(user)}
+                        disabled={actionInProgress === user.id}
+                        className="p-2 text-amber-600 hover:bg-amber-50 rounded-md transition-colors disabled:opacity-50"
+                        title="Demote to Customer"
+                      >
+                        <UserMinus className="w-4 h-4" />
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={3} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={4} className="p-8 text-center text-muted-foreground">
                     No administrators found.
                   </td>
                 </tr>
@@ -171,6 +239,14 @@ const UserManagement = () => {
                           {promotingUserId === user.id ? 'Promoting...' : 'Promote to Admin'}
                         </button>
                       )}
+                      <button
+                        onClick={() => handleDeleteUser(user)}
+                        disabled={actionInProgress === user.id}
+                        className="p-2 text-destructive hover:bg-red-50 rounded-md transition-colors disabled:opacity-50 ml-2"
+                        title="Delete User"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </td>
                   </tr>
                 ))
