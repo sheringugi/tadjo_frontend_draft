@@ -28,7 +28,7 @@ const Complaints = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Complaints</h1>
+        <h1 className="text-2xl font-semibold text-slate-900">Feedback</h1>
         <p className="text-sm text-slate-500">Customer complaints and issues</p>
       </div>
 
@@ -37,7 +37,7 @@ const Complaints = () => {
           {loading ? (
             <p className="text-sm text-slate-500 py-8 text-center">Loading...</p>
           ) : complaints.length === 0 ? (
-            <p className="text-sm text-slate-500 py-8 text-center">No complaints found</p>
+            <p className="text-sm text-slate-500 py-8 text-center">No feedback found</p>
           ) : (
             <Table>
               <TableHeader>
