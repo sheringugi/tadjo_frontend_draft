@@ -27,7 +27,7 @@ const navItems = [
   { to: '/admin/content', label: 'Page Content', icon: FileText },
   { to: '/admin/reviews', label: 'Reviews', icon: Star },
   { to: '/admin/contributions', label: 'Contributions', icon: HeartHandshake },
-  { to: '/admin/complaints', label: 'Complaints', icon: MessageSquareWarning },
+  { to: '/admin/complaints', label: 'Feedback', icon: MessageSquareWarning },
   { to: '/admin/returns', label: 'Returns', icon: RotateCcw },
 ];
 

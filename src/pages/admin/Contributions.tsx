@@ -33,7 +33,7 @@ const AdminContributions = () => {
           <thead className="bg-secondary text-muted-foreground font-medium">
             <tr>
               <th className="p-4">Date</th>
-              <th className="p-4">Order ID</th>
+              <th className="p-4">Order Number</th>
               <th className="p-4 text-right">Amount</th>
             </tr>
           </thead>
