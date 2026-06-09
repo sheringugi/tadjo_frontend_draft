@@ -3,7 +3,7 @@ import { HeartHandshake } from 'lucide-react';
 import { adminFetch } from '@/lib/auth';
 
 interface Contribution {
-  id: string;
+  order_number: string;
   amount: number;
   currency: string;
   created_at: string;
@@ -39,9 +39,9 @@ const AdminContributions = () => {
           </thead>
           <tbody className="divide-y divide-border">
             {contributions.map((c) => (
-              <tr key={c.id}>
+              <tr key={c.order_number}>
                 <td className="p-4 text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</td>
-                <td className="p-4 font-mono text-xs">{c.order_id}</td>
+                <td className="p-4 font-mono text-xs">{c.order_number}</td>
                 <td className="p-4 text-right font-medium text-green-600">
                   {c.currency} {Number(c.amount).toFixed(2)}
                 </td>
